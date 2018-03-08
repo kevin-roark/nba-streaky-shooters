@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "@types/classnames": "^2.2.3",
     "@types/jest": "^22.2.0",
     "@types/node": "^9.4.6",
     "@types/react": "^16.0.40",
@@ -12,6 +13,7 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
+    "classnames": "^2.2.5",
     "emotion": "^9.0.2",
     "nba-netdata": "kevin-roark/nba-netdata",
     "react": "^16.2.0",
