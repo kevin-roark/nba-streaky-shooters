@@ -17,6 +17,7 @@
     "emotion": "^9.0.2",
     "nba-netdata": "kevin-roark/nba-netdata",
     "react": "^16.2.0",
+    "react-autosuggest": "^9.3.4",
     "react-dom": "^16.2.0",
     "react-emotion": "^9.0.2",
     "react-router-dom": "^4.2.2",

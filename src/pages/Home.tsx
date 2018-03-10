@@ -1,6 +1,6 @@
 import * as React from 'react'
 import styled from 'react-emotion'
-import NBASearch from '../components/NBASearch'
+import RoutingNBASearch from '../components/RoutingNBASearch'
 import { PageContainer, mobileBreakpoint } from '../layout'
 
 const ContentContainer = styled('div')`
@@ -39,7 +39,7 @@ const Home = () => (
         This application can be used to analyze variation in shooting accuracy for players and teams,
         with the aim of understanding how recent shooting performance might affect upcoming games or plays.
       </Description>
-      <NBASearch big={true} />
+      <RoutingNBASearch big={true} />
     </ContentContainer>
   </PageContainer>
 )
