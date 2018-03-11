@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
-import { getPlayerUrl, getTeamUrl } from '../routes'
+import { getPlayerRoute, getTeamRoute } from '../routes'
 import { NBASearch, PartialNBASearchProps, TeamOrPlayer } from './NBASearch'
 
 type RoutingNBASearchProps = RouteComponentProps<any> & PartialNBASearchProps
@@ -9,9 +9,9 @@ const RoutingNBASearch = withRouter((props: RoutingNBASearchProps) => {
   const handleSearchRequest = (input: TeamOrPlayer) => {
     let path: string | null = null
     if (input.team) {
-      path = getTeamUrl(String(input.team.id))
+      path = getTeamRoute(input.team.abbreviation)
     } else if (input.player) {
-      path = getPlayerUrl(input.player.id)
+      path = getPlayerRoute(input.player.simpleId)
     }
 
     if (path) {

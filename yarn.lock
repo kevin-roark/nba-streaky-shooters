@@ -55,6 +55,12 @@
     "@types/history" "*"
     "@types/react" "*"
 
+"@types/react-table@^6.7.6":
+  version "6.7.6"
+  resolved "https://registry.yarnpkg.com/@types/react-table/-/react-table-6.7.6.tgz#7c25f076cb7dce2509f0593308fc4c21ef326517"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^16.0.40":
   version "16.0.40"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.40.tgz#caabc2296886f40b67f6fc80f0f3464476461df9"
@@ -5282,6 +5288,12 @@ react-scripts-ts@2.13.0:
   optionalDependencies:
     fsevents "1.1.2"
 
+react-table@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/react-table/-/react-table-6.8.0.tgz#5ce402eb735df68534c03dabb3faa031478b6a58"
+  dependencies:
+    classnames "^2.2.5"
+
 react-themeable@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-themeable/-/react-themeable-1.1.0.tgz#7d4466dd9b2b5fa75058727825e9f152ba379a0e"
@@ -5776,6 +5788,10 @@ shellwords@^0.1.1:
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
+
+simple-statistics@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-5.2.1.tgz#b1a93a336c02053e04273c7ee84606b33b907c46"
 
 slash@^1.0.0:
   version "1.0.0"

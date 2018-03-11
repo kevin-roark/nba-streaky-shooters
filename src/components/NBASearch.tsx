@@ -5,7 +5,7 @@ import * as cx from 'classnames'
 import Autosuggest from 'react-autosuggest'
 import { getTeamsInfo, getPlayersInfo } from 'nba-netdata/dist/data'
 import { PlayerInfo, TeamInfo } from 'nba-netdata/dist/types'
-import { mobileBreakpoint } from '../layout'
+import { mobileBreakpoint, serif } from '../layout'
 
 export interface TeamOrPlayer {
   team?: TeamInfo,
@@ -33,7 +33,7 @@ const inputStyles = css`
   border-radius: 0;
   background-color: #fff;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
-  font-family: Times New Roman, serif;
+  font-family: ${serif};
 
   padding: 10px 10px;
   width: 400px;
@@ -76,17 +76,19 @@ const Container = styled('form')`
   & .react-autosuggest__suggestions-container--open {
     display: block;
     position: absolute;
-    top: 51px;
-    width: 400px;
-    background-color: #fff;
+    top: 50px;
     font-size: 16px;
     z-index: 2;
+    max-height: 370px;
+    overflow-y: auto;
   }
 
   & .react-autosuggest__suggestion {
     cursor: pointer;
-    padding: 10px 20px;
-    border: 1px solid #000;
+    padding: 10px 12px;
+    width: 400px;
+    background-color: #fff;
+    border: 1px solid #ccc;
   }
 
   & .react-autosuggest__suggestion--highlighted {
@@ -102,8 +104,14 @@ const Container = styled('form')`
     }
 
     & .react-autosuggest__suggestions-container--open {
+      top: 122px;
+      max-height: 550px;
+      font-size: 18px;
+    }
+
+    & .react-autosuggest__suggestion {
+      padding: 16px;
       width: 800px;
-      top: 100px;
     }
   }
 `
@@ -132,7 +140,20 @@ export class NBASearch extends React.Component<NBASearchProps, NBASearchState> {
 
   onSubmit = (ev) => {
     ev.preventDefault()
+    this.handleSearchRequest()
+  }
 
+  onSuggestionSelected = (ev, options: {
+    suggestion: TeamOrPlayer, suggestionValue: string, method: 'click' | 'enter'
+  }) => {
+    this.setState({ value: options.suggestionValue, selectedSuggestion: options.suggestion }, () => {
+      if (options.method === 'click') {
+        setTimeout(this.handleSearchRequest, 100)
+      }
+    })
+  }
+
+  handleSearchRequest = () => {
     const suggestion = this.state.selectedSuggestion || this.state.suggestions[0]
     if (!suggestion) {
       return this.setState({ notFoundError: true })
@@ -140,10 +161,6 @@ export class NBASearch extends React.Component<NBASearchProps, NBASearchState> {
 
     this.props.handleSearchRequest(suggestion)
     this.setState({ notFoundError: false, value: '', selectedSuggestion: null })
-  }
-
-  onSuggestionSelected = (ev, options: { suggestion: TeamOrPlayer }) => {
-    this.setState({ selectedSuggestion: options.suggestion })
   }
 
   getSuggestions = (value: string) => {

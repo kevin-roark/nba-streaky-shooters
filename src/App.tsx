@@ -23,11 +23,13 @@ const App = () => (
 
       <Route path={routes.home} exact={true} component={Home} />
 
-      <Route path={routes.getPlayerUrl(':playerId')} exact={true} component={Player} />
-      <Route path={routes.getPlayerGameUrl(':playerId', ':gameId')} exact={true} component={Player} />
+      <Route path={routes.getPlayerRoute(':playerId')} exact={true} component={Player} />
+      <Route path={routes.getPlayerGameRoute(':playerId')} exact={true} component={Player} />
+      <Route path={routes.getPlayerGameRoute(':playerId', ':gameId')} exact={true} component={Player} />
 
-      <Route path={routes.getTeamUrl(':playerId')} exact={true} component={Team} />
-      <Route path={routes.getTeamGameUrl(':playerId', ':gameId')} exact={true} component={Team} />
+      <Route path={routes.getTeamRoute(':teamAbbreviation')} exact={true} component={Team} />
+      <Route path={routes.getTeamGameRoute(':teamAbbreviation')} exact={true} component={Team} />
+      <Route path={routes.getTeamGameRoute(':teamAbbreviation', ':gameId')} exact={true} component={Team} />
     </Container>
   </Router>
 )
