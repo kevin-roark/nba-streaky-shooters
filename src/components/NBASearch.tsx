@@ -124,15 +124,7 @@ interface NBASearchState {
 }
 
 export class NBASearch extends React.Component<NBASearchProps, NBASearchState> {
-  constructor(props: NBASearchProps) {
-    super(props)
-    this.state = {
-      value: '',
-      suggestions: [],
-      selectedSuggestion: null,
-      notFoundError: false
-    }
-  }
+  state = { value: '', suggestions: [], selectedSuggestion: null, notFoundError: false }
 
   onInputChange = (ev, { newValue }) => {
     this.setState({ value: newValue })

@@ -9,11 +9,8 @@ interface LoadingProps { message: string }
 interface LoadingState { counter: number }
 
 class Loading extends React.Component<LoadingProps, LoadingState> {
+  state = { counter: 0 }
   interval: any
-  constructor(props: LoadingProps) {
-    super(props)
-    this.state = { counter: 0 }
-  }
 
   componentDidMount() {
     const increment = () => { this.setState({ counter: this.state.counter + 1 }) }
