@@ -25,3 +25,12 @@ export const PageTitle = styled('h1')`
   font-size: 48px;
   font-weight: 500;
 `
+
+export const DescriptionExplanation = styled('p')`
+  margin-bottom: 0;
+  color: #222;
+  font-family: ${serif};
+  font-style: italic;
+  font-size: 12px;
+  line-height: 14px;
+`
