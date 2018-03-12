@@ -1,15 +1,37 @@
 import * as React from 'react'
 import styled from 'react-emotion'
 import { Season, PlayerInfo, PlayerBoxScores } from 'nba-netdata/dist/types'
+import {
+  combineBoxScoreStatsWithShootingData,
+  calcShootingDataFromBoxScoreStats,
+  getEnhancedShootingBoxScoreStatsStdDev
+} from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import SeasonShootingTable from './SeasonShootingTable'
+import SeasonShootingChart from './SeasonShootingChart'
 
 const TableWrapper = styled('div')`
   max-width: 800px;
   margin: 0 auto;
 `
+
+interface PlayerSeasonDataProps { boxScores: PlayerBoxScores }
+
+const PlayerSeasonData = ({ boxScores }: PlayerSeasonDataProps) => {
+  const stats = boxScores.scores.map(s => s.stats)
+  const enhancedBoxScores = stats.map(calcShootingDataFromBoxScoreStats)
+
+  return (
+    <div>
+      <TableWrapper>
+        <SeasonShootingTable enhancedBoxScores={enhancedBoxScores} />
+      </TableWrapper>
+      <SeasonShootingChart enhancedBoxScores={enhancedBoxScores} />
+    </div>
+  )
+}
 
 interface PlayerSeasonProps {
   player: PlayerInfo,
@@ -62,9 +84,7 @@ class PlayerSeason extends React.Component<PlayerSeasonProps, PlayerSeasonState>
 
     return (
       <div>
-        <TableWrapper>
-          <SeasonShootingTable stats={boxScores.scores} />
-        </TableWrapper>
+        <PlayerSeasonData boxScores={boxScores} />
       </div>
     )
   }

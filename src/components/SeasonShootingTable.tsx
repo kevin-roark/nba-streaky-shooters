@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { GameStats } from 'nba-netdata/dist/types'
 import {
   EnhancedShootingStats,
+  EnhancedShootingBoxScoreStats,
   combineBoxScoreStatsWithShootingData,
-  calcShootingDataFromBoxScoreStats,
   getEnhancedShootingBoxScoreStatsStdDev
 } from 'nba-netdata/dist/calc'
 import { Table, TableColumn, TableConfig } from './Table'
@@ -12,10 +11,13 @@ interface SeasonShootingTableData extends EnhancedShootingStats {
   label: string
 }
 
-export const SeasonShootingTable = (props: { stats: GameStats[] } & TableConfig) => {
-  const boxScores = props.stats.map(s => s.stats)
-  const enhancedBoxScores = boxScores.map(calcShootingDataFromBoxScoreStats)
-  const shootingData = combineBoxScoreStatsWithShootingData(boxScores)
+interface SeasonShootingTableProps {
+  enhancedBoxScores: EnhancedShootingBoxScoreStats[]
+}
+
+export const SeasonShootingTable = (props: SeasonShootingTableProps & TableConfig) => {
+  const { enhancedBoxScores } = props
+  const shootingData = combineBoxScoreStatsWithShootingData(enhancedBoxScores)
   const stdDevShootingData = getEnhancedShootingBoxScoreStatsStdDev(enhancedBoxScores)
 
   const getShootingColumn = (Header: string, key: keyof EnhancedShootingStats) => {
