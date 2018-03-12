@@ -2,7 +2,7 @@ import * as React from 'react'
 import { css } from 'emotion'
 import styled from 'react-emotion'
 import ReactTable from 'react-table'
-import { monospace } from '../layout'
+import { monospace, TextAlign } from '../layout'
 
 import 'react-table/react-table.css'
 
@@ -18,18 +18,17 @@ const TableContainer = styled('div')`
   }
 `
 
-const tableCellStyles = css``
-
-export const RightAlignedTableCell = styled('div')`
-  ${tableCellStyles};
-  text-align: right;
+export const TableCell = styled<{ align?: TextAlign }, 'div'>('div')`
+  text-align: ${props => props.align || 'right'};
 `
 
 export interface TableColumn<T> {
   Header: string,
   accessor: (keyof T) | ((data: any) => string | number),
   percent?: boolean,
-  Cell?: (row: { value: any, original: T }) => any
+  align?: 'left' | 'center' | 'right',
+  Cell?: (row: { value: any, original: T }) => any,
+  width?: string | number
 }
 
 export interface TableConfig {
@@ -54,6 +53,9 @@ export class Table<T> extends React.Component<TableProps<T>, TableState> {
     }
 
     const columns = this.props.columns.map(item => {
+      const Cell = item.Cell || (row => <TableCell align={item.align}>{row.value}</TableCell>)
+      let newItem = { ...item, Cell }
+
       if (item.percent && typeof item.accessor === 'string') {
         const key = item.accessor
         const accessor = (d: T) => {
@@ -64,10 +66,10 @@ export class Table<T> extends React.Component<TableProps<T>, TableState> {
 
           return (value * 100).toFixed(1) + '%'
         }
-        return { ...item, id: key, accessor }
+        return { ...newItem, id: key, accessor }
       }
 
-      return item
+      return newItem
     })
 
     return (

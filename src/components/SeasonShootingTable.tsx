@@ -1,19 +1,29 @@
 import * as React from 'react'
 import { GameStats } from 'nba-netdata/dist/types'
-import { EnhancedShootingStats, combineBoxScoreStatsWithShootingData } from 'nba-netdata/dist/calc'
-import { Table, TableColumn, TableConfig, RightAlignedTableCell } from './Table'
+import {
+  EnhancedShootingStats,
+  combineBoxScoreStatsWithShootingData,
+  calcShootingDataFromBoxScoreStats,
+  getEnhancedShootingBoxScoreStatsStdDev
+} from 'nba-netdata/dist/calc'
+import { Table, TableColumn, TableConfig } from './Table'
 
-export const SeasonShootingTable = (props: { data: EnhancedShootingStats } & TableConfig) => {
-  const { data } = props
+interface SeasonShootingTableData extends EnhancedShootingStats {
+  label: string
+}
+
+export const SeasonShootingTable = (props: { stats: GameStats[] } & TableConfig) => {
+  const boxScores = props.stats.map(s => s.stats)
+  const enhancedBoxScores = boxScores.map(calcShootingDataFromBoxScoreStats)
+  const shootingData = combineBoxScoreStatsWithShootingData(boxScores)
+  const stdDevShootingData = getEnhancedShootingBoxScoreStatsStdDev(enhancedBoxScores)
 
   const getShootingColumn = (Header: string, key: keyof EnhancedShootingStats) => {
-    const Cell = row => {
-      return <RightAlignedTableCell>{row.value}</RightAlignedTableCell>
-    }
-    return { Header, accessor: key, percent: true, Cell }
+    return { Header, accessor: key, percent: true }
   }
 
-  const columns: TableColumn<EnhancedShootingStats>[] = [
+  const columns: TableColumn<SeasonShootingTableData>[] = [
+    { Header: '', accessor: 'label', align: 'center', width: 180 },
     getShootingColumn('EFG%', 'effectiveFieldGoalPercentage'),
     getShootingColumn('TSP%', 'trueShootingPercentage'),
     getShootingColumn('FG%', 'fieldGoalPercentage'),
@@ -22,13 +32,12 @@ export const SeasonShootingTable = (props: { data: EnhancedShootingStats } & Tab
     getShootingColumn('FT%', 'freeThrowPercentage')
   ]
 
-  return <Table {...props} data={[data]} columns={columns} />
-}
+  const data = [
+    { ...shootingData, label: 'Season AVG' },
+    { ...stdDevShootingData, label: 'Game-to-Game STD' }
+  ]
 
-export const BoxScoreSeasonShootingTable = (props: { stats: GameStats[] } & TableConfig) => {
-  const boxScores = props.stats.map(s => s.stats)
-  const shootingData = combineBoxScoreStatsWithShootingData(boxScores)
-  return <SeasonShootingTable {...props} data={shootingData} />
+  return <Table {...props} data={data} columns={columns} />
 }
 
 export default SeasonShootingTable

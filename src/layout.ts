@@ -1,5 +1,7 @@
 import styled from 'react-emotion'
 
+export type TextAlign = 'left' | 'center' | 'right'
+
 export const serif = `Times New Roman, serif`
 export const sansSerif = `'Work Sans', 'Helvetica', sans-serif`
 export const monospace = `'Overpass Mono', monospace`

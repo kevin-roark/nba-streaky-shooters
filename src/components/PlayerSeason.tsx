@@ -1,11 +1,10 @@
 import * as React from 'react'
 import styled from 'react-emotion'
 import { Season, PlayerInfo, PlayerBoxScores } from 'nba-netdata/dist/types'
-import { calculateShootingDataFromBoxScoreStats } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
-import { BoxScoreSeasonShootingTable } from './SeasonShootingTable'
+import SeasonShootingTable from './SeasonShootingTable'
 
 const TableWrapper = styled('div')`
   max-width: 800px;
@@ -64,7 +63,7 @@ class PlayerSeason extends React.Component<PlayerSeasonProps, PlayerSeasonState>
     return (
       <div>
         <TableWrapper>
-          <BoxScoreSeasonShootingTable stats={boxScores.scores} />
+          <SeasonShootingTable stats={boxScores.scores} />
         </TableWrapper>
       </div>
     )
