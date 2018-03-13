@@ -33,3 +33,8 @@ export function parseQueryParams(search: string): StreakyQueryParams {
 
   return { season }
 }
+
+export function getPlayerId(route: string) {
+  const match = route.match(/\/player\/([\w'-]+)\/?/)
+  return match ? match[1] : null
+}

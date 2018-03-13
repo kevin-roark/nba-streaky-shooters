@@ -4,14 +4,13 @@ import styled from 'react-emotion'
 import * as cx from 'classnames'
 import { ShootingStat } from 'nba-netdata/dist/calc'
 import { ShootingFilterData } from '../models/shootingFilterData'
-import { DescriptionExplanation } from '../layout'
-import { theme } from '../config'
+import { DescriptionExplanation, secondaryContainerStyles } from '../layout'
+import { shootingColorMap } from '../theme'
+import { getStatAbbr } from '../util/shooting'
 
 const Container = styled('div')`
+  ${secondaryContainerStyles};
   width: 200px;
-  padding: 20px;
-  background: #fafafa;
-  border: 1px solid #ccc;
 `
 
 const Legend = styled('ul')``
@@ -51,18 +50,6 @@ const defaultVisibleKeys: ShootingStat[] = [
   'freeThrowPercentage'
 ]
 
-const shootingStatLabels = {
-  effectiveFieldGoalPercentage: 'EFG%',
-  trueShootingPercentage: 'TSP%',
-  fieldGoalPercentage: 'FG%',
-  twoPointPercentage: '2P%',
-  threePointPercentage: '3P%',
-  freeThrowPercentage: 'FT%',
-  rimPercentage: 'RIM%',
-  shortMidRangePercentage: 'SMR%',
-  longMidRangePercentage: 'LMR%'
-}
-
 interface ShootingDataLegendProps {
   filterData: ShootingFilterData,
   visibleKeys?: ShootingStat[]
@@ -71,8 +58,8 @@ interface ShootingDataLegendProps {
 const ShootingDataLegend = ({ filterData, visibleKeys = defaultVisibleKeys }: ShootingDataLegendProps) => {
   const legendItems = visibleKeys
     .map(key => {
-      const color = theme.shootingColorMap[key]
-      const label = shootingStatLabels[key]
+      const color = shootingColorMap[key]
+      const label = getStatAbbr(key) + '%'
       const enabled = filterData.getStatEnabled(key)
       const onClick = () => filterData.toggleStatEnabled(key)
       return { key, color, label, enabled, onClick }

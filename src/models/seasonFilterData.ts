@@ -1,7 +1,7 @@
 import { observable, action, computed } from 'mobx'
 import * as moment from 'moment'
 import { Moment } from 'moment'
-import { GameStats } from 'nba-netdata/dist/types'
+import { GameLog } from 'nba-netdata/dist/types'
 
 interface MomentDateRange { startDate: Moment, endDate: Moment }
 
@@ -32,7 +32,7 @@ export class SeasonFilterData {
       return SeasonFilterData.isWithinRange(day, this.dateRange)
     }
 
-    filterStats(stats: GameStats[]) {
+    filterStats<T extends { game: GameLog }>(stats: T[]): T[] {
       return stats.filter(({ game }) => {
         const d = moment(game.GAME_DATE)
         if (!this.isWithinCurrentRange(d)) {

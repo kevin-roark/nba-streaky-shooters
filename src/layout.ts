@@ -1,4 +1,5 @@
 import styled from 'react-emotion'
+import { css } from 'emotion'
 
 export type TextAlign = 'left' | 'center' | 'right'
 
@@ -18,6 +19,12 @@ export const ContentContainer = styled('div')`
     max-width: none;
     margin: 0 25px;
   }
+`
+
+export const secondaryContainerStyles = css`
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid #ccc;
 `
 
 export const PageTitle = styled('h1')`
