@@ -1,41 +1,50 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import styled from 'react-emotion'
-import { Season, PlayerInfo, PlayerBoxScores, GameLog } from 'nba-netdata/dist/types'
-import { calcShootingDataFromBoxScoreStats, EnhancedShootingBoxScoreStats } from 'nba-netdata/dist/calc'
-import { webDataManager } from '../data'
-import seasonFilterData, { SeasonFilterData } from '../models/seasonFilterData'
+import { Season, PlayerInfo } from 'nba-netdata/dist/types'
+import { PlayerSeasonDataProps, playerSeasonData } from '../models/seasonData'
 import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import SeasonDataFilter from './SeasonDataFilter'
 import SeasonShootingTable from './SeasonShootingTable'
+import SeasonShootingActiveGame from './SeasonShootingActiveGame'
 import SeasonShootingChart from './SeasonShootingChart'
 
-const TableWrapper = styled('div')`
-  max-width: 960px;
-  margin: 0 auto;
+const Container = styled('div')`
+  margin: 0 auto 0 auto;
+  max-width: 1440px;
 `
 
-interface PlayerSeasonDataProps {
-  boxScores: { game: GameLog, stats: EnhancedShootingBoxScoreStats }[],
-  filterData: SeasonFilterData
-}
+const FirstRowContainer = styled('div')`
+  height: 200px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+`
 
-const PlayerSeasonData = observer(({ boxScores, filterData }: PlayerSeasonDataProps) => {
-  const allStats = boxScores.map(s => s.stats)
+const TableWrapper = styled('div')`
+  width: calc(100% - 386px);
+  margin-right: 20px;
+`
 
-  const filteredScores = filterData.filterStats(boxScores)
-  const filteredGames = filteredScores.map(s => s.game)
-  const filteredStats = filteredScores.map(s => s.stats)
+const ActiveGameWrapper = styled('div')`
+  width: 366px;
+`
 
+const PlayerSeasonData = observer(({ data }: PlayerSeasonDataProps) => {
   return (
-    <div>
-      <SeasonDataFilter data={filterData} />
-      <TableWrapper>
-        <SeasonShootingTable allStats={allStats} filteredStats={filteredStats} />
-      </TableWrapper>
-      <SeasonShootingChart games={filteredGames} enhancedBoxScores={filteredStats} />
-    </div>
+    <Container>
+      <SeasonDataFilter data={data.filterData} />
+      <FirstRowContainer>
+        <TableWrapper>
+          <SeasonShootingTable data={data} />
+        </TableWrapper>
+        <ActiveGameWrapper>
+          <SeasonShootingActiveGame data={data} />
+        </ActiveGameWrapper>
+      </FirstRowContainer>
+      <SeasonShootingChart data={data} />
+    </Container>
   )
 })
 
@@ -44,18 +53,8 @@ interface PlayerSeasonProps {
   season: Season
 }
 
-interface PlayerSeasonState {
-  loading: boolean,
-  loadError: string | null,
-  boxScores: PlayerBoxScores | null
-}
-
-class PlayerSeason extends React.Component<PlayerSeasonProps, PlayerSeasonState> {
-  constructor(props: PlayerSeasonProps) {
-    super(props)
-    this.state = { loading: true, loadError: null, boxScores: null }
-  }
-
+@observer
+class PlayerSeason extends React.Component<PlayerSeasonProps & PlayerSeasonDataProps, {}> {
   componentDidMount() {
     this.loadSeasonData()
   }
@@ -67,30 +66,23 @@ class PlayerSeason extends React.Component<PlayerSeasonProps, PlayerSeasonState>
   }
 
   loadSeasonData() {
-    const { player, season } = this.props
-    this.setState({ loading: true }, async () => {
-      const boxScores = await webDataManager.loadPlayerBoxScores(player.id, season)
-      const loadError = boxScores ? null : 'Error loading player box scores...'
-      this.setState({ boxScores, loadError, loading: false })
-    })
+    this.props.data.setPlayerId(this.props.player.id)
   }
 
   render() {
-    const { loading, loadError, boxScores } = this.state
-    if (loading) {
+    const { data } = this.props
+    if (data.loading) {
       return <Loading message="Loading" />
     }
-    if (loadError || !boxScores) {
-      return <ErrorMessage message={`${loadError} — Please try refreshing the page.`} />
+    if (data.loadError || !data.scores) {
+      return <ErrorMessage message={`${data.loadError} — Please try refreshing the page.`} />
     }
 
-    const enhancedBoxScores = boxScores.scores.map(b => ({
-      game: b.game,
-      stats: calcShootingDataFromBoxScoreStats(b.stats)
-    }))
-
-    return <PlayerSeasonData boxScores={enhancedBoxScores} filterData={seasonFilterData} />
+    return <PlayerSeasonData data={data} />
   }
 }
 
-export default PlayerSeason
+const ConnectedPlayerSeason = (props: PlayerSeasonProps) =>
+  <PlayerSeason {...props} data={playerSeasonData} />
+
+export default ConnectedPlayerSeason

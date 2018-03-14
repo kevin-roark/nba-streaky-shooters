@@ -1,19 +1,18 @@
 import * as React from 'react'
+import { observe } from 'mobx'
 import { observer } from 'mobx-react'
 import styled from 'react-emotion'
 import * as moment from 'moment'
 import { VictoryContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
-import { GameLog } from 'nba-netdata/dist/types'
-import { EnhancedShootingBoxScoreStats, ShootingStat } from 'nba-netdata/dist/calc'
+import { ShootingStat } from 'nba-netdata/dist/calc'
 import { theme, shootingColorMap } from '../theme'
-import shootingFilterData, { ShootingFilterData } from '../models/shootingFilterData'
+import { PlayerSeasonDataProps } from '../models/seasonData'
+import defaultShootingFilterData, { ShootingFilterDataProps } from '../models/shootingFilterData'
+import inputDataStore, { InputData } from '../models/inputData'
 import ShootingDataLegend from './ShootingDataLegend'
-import HoverContainer from './HoverContainer'
-import SeasonShootingHoverGame from './SeasonShootingHoverGame'
 
 const Container = styled('div')`
-  margin: 20px auto 0 auto;
-  max-width: 1440px;
+  margin-top: 20px;
   display: flex;
   align-items: flex-start;
 `
@@ -24,9 +23,7 @@ const ChartWrapper = styled('div')`
   background-color: #fff;
 `
 
-interface SeasonShootingChartProps {
-  games: GameLog[],
-  enhancedBoxScores: EnhancedShootingBoxScoreStats[]
+interface SeasonShootingChartProps extends PlayerSeasonDataProps {
   width?: number,
   height?: number
 }
@@ -34,98 +31,146 @@ interface SeasonShootingChartProps {
 interface SeasonShootingData {
   x: number,
   y: number,
-  idx: number
+  filteredIdx: number,
+  gameId: string,
+  strokeWidth?: number
 }
 
 interface SeasonShootingChartDataProps extends SeasonShootingChartProps {
-  xDomain: [number, number],
   xValues: number[],
-  series: { key: ShootingStat, color: string, data: SeasonShootingData[] }[]
+  series: { key: ShootingStat, color: string, data: SeasonShootingData[] }[],
+  inputData: InputData
 }
 
 interface SeasonShootingChartDataState {
-  hoverInfo: { mouseX: number, mouseY: number, dataIndex: number },
-  showHoverInfo: boolean
+  lockedPosition: null | { mouseY: number }
 }
 
+@observer
 class SeasonShootingChartData extends React.Component<SeasonShootingChartDataProps, SeasonShootingChartDataState> {
+  chartContainer: HTMLDivElement | null
+  inputObserveDesposers: (() => void)[] = []
   constructor(props: SeasonShootingChartDataProps) {
     super(props)
-    this.state = {
-      showHoverInfo: false,
-      hoverInfo: { mouseX: -1, mouseY: -1, dataIndex: -1 }
-    }
+    this.state = { lockedPosition: null }
   }
 
-  closeHoverContainer = () => {
-    this.setState({ showHoverInfo: false })
+  get xDomain() {
+    const { xValues } = this.props
+    return [xValues[0], xValues[xValues.length - 1]]
   }
 
-  renderHoverInfo() {
-    const { hoverInfo, showHoverInfo } = this.state
-    if (!showHoverInfo) {
+  get chartBoundsWithPadding() {
+    if (!this.chartContainer) {
       return null
     }
 
-    const { games, enhancedBoxScores } = this.props
+    const bounds = this.chartContainer.getBoundingClientRect()
 
-    return (
-      <HoverContainer {...hoverInfo} selfManaged={true} onCloseRequest={this.closeHoverContainer}>
-        <SeasonShootingHoverGame games={games} stats={enhancedBoxScores} dataIndex={hoverInfo.dataIndex} />
-      </HoverContainer>
-    )
+    const chartPadding = theme.defaultChartProps.padding
+    return {
+      left: bounds.left + chartPadding.left + 10,
+      right: bounds.right - chartPadding.right - 10,
+      top: bounds.top + chartPadding.top,
+      bottom: bounds.bottom - chartPadding.bottom
+    }
+  }
+
+  componentDidMount() {
+    const { data, inputData, series } = this.props
+
+    // when the mouse moves over the chart, we need to update the active game
+    const mouseMoveObserver = observe(inputData, 'mousePosition', change => {
+      if (change.type !== 'update' || this.state.lockedPosition) {
+        return
+      }
+
+      const bounds = this.chartBoundsWithPadding
+      if (!bounds || !inputData.isMouseWithinBounds(bounds)) {
+        return
+      }
+
+      const { xDomain, props: { xValues } } = this
+
+      const xp = inputData.getMouseXPercent(bounds)
+      const xpv = xDomain[0] + xp * (xDomain[1] - xDomain[0])
+
+      // find the closest x value to the mouse -- key is that they are not uniformly distributed
+      let closestIndex = -1
+      let closestXDist = Infinity
+      xValues.forEach((x, idx) => {
+        const dist = Math.abs(x - xpv)
+        if (dist < closestXDist) {
+          closestXDist = dist
+          closestIndex = idx
+        }
+      })
+
+      if (closestIndex < 0 || closestIndex >= data.filteredGames.length) {
+        return data.filterData.clearActiveGameId()
+      }
+
+      let hasData = false
+      for (const s of series) {
+        hasData = !!s.data.find(item => item.filteredIdx === closestIndex)
+        if (hasData) {
+          break
+        }
+      }
+
+      if (!hasData) {
+        return data.filterData.clearActiveGameId()
+      }
+
+      data.filterData.setActiveGameId(data.filteredGames[closestIndex].GAME_ID)
+    })
+
+    // mouse down over the chart toggles lock on the active game
+    const mouseDownDesposer = observe(inputData, 'mouseDown', change => {
+      if (change.type === 'update' && change.newValue) {
+        if (inputData.isMouseWithinBounds(this.chartBoundsWithPadding)) {
+          const lp = this.state.lockedPosition ? null : { mouseY: inputData.mouseY }
+          this.setState({ lockedPosition: lp })
+        }
+      }
+    })
+
+    this.inputObserveDesposers.push(mouseMoveObserver)
+    this.inputObserveDesposers.push(mouseDownDesposer)
+  }
+
+  componentWillUnmount() {
+    this.inputObserveDesposers.forEach(desposer => desposer())
+    this.inputObserveDesposers = []
+  }
+
+  setChartContainer = (el: HTMLDivElement | null)  => {
+    this.chartContainer = el
   }
 
   render() {
-    const { xDomain, xValues, series, width = 960, height = 540 } = this.props
-    // const { hoverInfo } = this.state
+    const { xValues, series, data, width = 960, height = 540 } = this.props
 
-    const events = [{
-      target: 'data',
-      eventHandlers: {
-        onMouseOver: (e: MouseEvent) => [{
-          mutation: (props) => {
-            this.setState({
-              showHoverInfo: true,
-              hoverInfo: { mouseX: e.clientX, mouseY: e.clientY, dataIndex: props.datum.idx }
-            })
-            return { style: { ...props.style, strokeWidth: 8 } }
-          }
-        }],
-        onMouseOut: (e: MouseEvent) => [{
-          mutation: (props) => {
-            return null
-          }
-        }]
-      }
-    }]
-    //
-    // const series = this.props.series.map(s => ({
-    //   ...s,
-    //   data: s.data.map(d => ({ ...d, strokeWidth: d.idx === h ? 8 : 2 }))
-    // }))
+    series.forEach(s => {
+      s.data.forEach(d => {
+        d.strokeWidth = d.gameId === data.filterData.activeGameId ? 8 : undefined
+      })
+    })
+
+    const containerComponent = <VictoryContainer responsive={true} containerRef={this.setChartContainer} />
 
     const chartProps = {
       ...theme.defaultChartProps,
-      width, height,
-      containerComponent: <VictoryContainer responsive={true} />,
-      domain: { x: xDomain, y: [0, 1] },
-      domainPadding: { x: [10, 10], y: [0, 5] }
+      width, height, containerComponent,
+      domain: { x: this.xDomain, y: [0, 1] },
+      domainPadding: { x: [10, 10], y: [0, 0] }
     }
+
+    const currentXValue = data.activeGame ? moment(data.activeGame.game.GAME_DATE).valueOf() : null
 
     return (
       <ChartWrapper>
-        {this.renderHoverInfo()}
-
         <VictoryChart {...chartProps}>
-          <VictoryGroup>
-            {series.map(({ key, data, color }) => (
-              <VictoryGroup key={key} style={{ data: { fill: color, stroke: color } }} data={data}>
-                <VictoryLine style={theme.line} />
-                <VictoryScatter events={events}  symbol="circle" style={theme.scatter} />
-              </VictoryGroup>
-            ))}
-          </VictoryGroup>
           <VictoryAxis
             label="Games"
             style={theme.independentAxis.style}
@@ -137,57 +182,62 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
             dependentAxis={true}
             label="Accuracy"
             style={theme.dependentAxis.style}
-            tickValues={[0, 0.25, 0.5, 0.75, 1]}
+            tickValues={[0.25, 0.5, 0.75, 1]}
             tickFormat={t => `${(t * 100).toFixed(0)}%`}
           />
+
+          {data.activeGame && (
+            <VictoryLine
+              data={[{ x: currentXValue, y: 0 }, { x: currentXValue, y: 1 }]}
+              style={{ data: { stroke: '#000', strokeWidth: 2, strokeDasharray: '10,10' } }}
+            />
+          )}
+
+          <VictoryGroup>
+            {series.map(({ key, data: seriesData, color }) => (
+              <VictoryGroup key={key} style={{ data: { fill: color, stroke: color } }} data={seriesData}>
+                <VictoryScatter symbol="circle" style={theme.scatter} />
+              </VictoryGroup>
+            ))}
+          </VictoryGroup>
         </VictoryChart>
       </ChartWrapper>
     )
   }
 }
 
-const SeasonShootingChart = observer((props: SeasonShootingChartProps & { filterData: ShootingFilterData }) => {
-  const { games, enhancedBoxScores, filterData } = props
+const SeasonShootingChart = observer((props: SeasonShootingChartProps & ShootingFilterDataProps) => {
+  const { data, shootingFilterData } = props
+  const { filteredGames, filteredStats } = data
 
-  const series = filterData.enabledStats
+  const dates = filteredGames.map(game => moment(game.GAME_DATE))
+  let xValues = dates.map(d => d.valueOf())
+
+  const series = shootingFilterData.enabledStats
     .map(key => {
-      const data = enhancedBoxScores
-        .map((item, idx) => {
-          const date = moment(games[idx].GAME_DATE)
-          return { x: date.valueOf(), y: item[key], idx }
-        })
+      const seriesData = filteredStats
+        .map((item, idx) => ({ x: xValues[idx], y: item[key], filteredIdx: idx, gameId: filteredGames[idx].GAME_ID }))
         .filter(d => !isNaN(d.y))
 
-      const color = shootingColorMap[key]
-
-      return { key, data, color }
+      return { key, data: seriesData, color: shootingColorMap[key] }
     })
-
-  let minX = Infinity, maxX = -Infinity, xValueSet = new Set<number>()
-  series.forEach(s => {
-    s.data.forEach(({ x }) => {
-      xValueSet.add(x)
-      minX = Math.min(x, minX)
-      maxX = Math.max(x, maxX)
-    })
-  })
-
-  const xValues = Array.from(xValueSet)
 
   return (
     <Container>
       <SeasonShootingChartData
         {...props}
-        xDomain={[minX, maxX]}
         xValues={xValues}
         series={series}
+        inputData={inputDataStore}
       />
-      <ShootingDataLegend filterData={filterData} />
+      <div>
+        <ShootingDataLegend filterData={shootingFilterData} />
+      </div>
     </Container>
   )
 })
 
 const ConnectedSeasonShootingChart = (props: SeasonShootingChartProps) =>
-  <SeasonShootingChart {...props} filterData={shootingFilterData} />
+  <SeasonShootingChart {...props} shootingFilterData={defaultShootingFilterData} />
 
 export default ConnectedSeasonShootingChart

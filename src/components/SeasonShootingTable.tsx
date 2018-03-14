@@ -1,16 +1,17 @@
 import * as React from 'react'
+import { observer } from 'mobx-react'
 import styled from 'react-emotion'
 import * as cx from 'classnames'
 import {
   ShootingStat,
   EnhancedShootingBoxScoreStats,
-  combineBoxScoreStatsWithShootingData,
   getEnhancedShootingBoxScoreStatsStdDev,
   getEnhancedShootingBoxScoreStatsIQR
 } from 'nba-netdata/dist/calc'
 import { secondaryContainerStyles, DescriptionExplanation, serif, monospace } from '../layout'
 import { pct } from '../util/format'
-import { shootingColumns, ShootingColumn, getStatTooltipText } from '../util/shooting'
+import { shootingColumns, ShootingColumn, getStatMadeAttemptedText } from '../util/shooting'
+import { PlayerSeasonDataProps } from '../models/seasonData'
 import { Table, TableColumn, TableConfig } from './table/Table'
 import { HoverTableCell } from './table/TableCell'
 import NumberDiff from './NumberDiff'
@@ -38,14 +39,11 @@ interface SeasonShootingTableData {
   label: string
 }
 
-interface SeasonShootingTableProps {
-  allStats: EnhancedShootingBoxScoreStats[]
-  filteredStats: EnhancedShootingBoxScoreStats[]
-}
+interface SeasonShootingTableProps extends PlayerSeasonDataProps {}
 
 interface SeasonShootingTableContentProps extends SeasonShootingTableProps {
   filtered: boolean,
-  data: SeasonShootingTableData[]
+  tableData: SeasonShootingTableData[]
 }
 
 interface SeasonShootingTableTooltip {
@@ -61,6 +59,7 @@ interface SeasonShootingtableContentState {
   tooltip: SeasonShootingTableTooltip | null
 }
 
+@observer
 class SeasonShootingTableContent extends React.Component<SeasonShootingTableContentProps, SeasonShootingtableContentState> {
   containerRect: ClientRect | DOMRect | null
 
@@ -109,7 +108,7 @@ class SeasonShootingTableContent extends React.Component<SeasonShootingTableCont
   }
 
   render() {
-    const { data, filtered } = this.props
+    const { tableData, filtered } = this.props
 
     const lc: TableColumn<SeasonShootingTableData> = {
       Header: '',
@@ -148,8 +147,8 @@ class SeasonShootingTableContent extends React.Component<SeasonShootingTableCont
             return
           }
 
-          const datum = data[row.index].filtered
-          const value = getStatTooltipText(datum, key)
+          const datum = tableData[row.index].filtered
+          const value = getStatMadeAttemptedText(datum, key)
 
           this.setTooltip(hovering ? { mouseX, mouseY, key, value, row: row.index } : null)
         }
@@ -161,7 +160,7 @@ class SeasonShootingTableContent extends React.Component<SeasonShootingTableCont
         const onHover = (hovering, mouseX, mouseY) =>
           this.setTooltip(hovering ? { mouseX, mouseY, key, value: title, row: row.index } : null)
 
-        return <HoverTableCell onHover={onHover}>{Header}</HoverTableCell>
+        return <HoverTableCell align="center" onHover={onHover}>{Header}</HoverTableCell>
       }
 
       return { Cell, accessor, Header: HoverHeader, id: key }
@@ -171,8 +170,9 @@ class SeasonShootingTableContent extends React.Component<SeasonShootingTableCont
       <Container innerRef={el => this.containerRect = el ? el.getBoundingClientRect() : null}>
         {this.renderCurrentTooltip()}
 
-        <Table {...this.props} data={data} columns={columns} sortable={false} />
+        <Table {...this.props} data={tableData} columns={columns} sortable={false} />
         <DescriptionExplanation>
+          {filtered && 'Colored values are differences between stats over current games and season average. '}
           Hover over cells for more information.
           Stat definitions taken from {' '}
           <a href="https://www.basketball-reference.com/about/glossary.html" target="_blank">Basketball Reference</a>.
@@ -182,25 +182,23 @@ class SeasonShootingTableContent extends React.Component<SeasonShootingTableCont
   }
 }
 
-export const SeasonShootingTable = (props: SeasonShootingTableProps & TableConfig) => {
-  const { allStats, filteredStats } = props
+export const SeasonShootingTable = observer((props: SeasonShootingTableProps & TableConfig) => {
+  const { data } = props
+  const { allStats, filteredStats, filtered, allAverageStats, filteredAverageStats } = data
 
-  const allAverage = combineBoxScoreStatsWithShootingData(allStats)
   const allStdDev = getEnhancedShootingBoxScoreStatsStdDev(allStats)
   const allIQR = getEnhancedShootingBoxScoreStatsIQR(allStats)
 
-  const filtered = allStats.length !== filteredStats.length
-  const filteredAverage = filtered ? combineBoxScoreStatsWithShootingData(filteredStats) : allAverage
   const filteredStdDev = filtered ? getEnhancedShootingBoxScoreStatsStdDev(filteredStats) : allStdDev
   const filteredIQR = filtered ? getEnhancedShootingBoxScoreStatsIQR(filteredStats) : allIQR
 
-  const data = [
-    { all: allAverage, filtered: filteredAverage, label: 'AVG' },
+  const tableData = [
+    { all: allAverageStats, filtered: filteredAverageStats, label: 'AVG' },
     { all: allStdDev, filtered: filteredStdDev, label: 'STD' },
     { all: allIQR, filtered: filteredIQR, label: 'IQR' }
   ]
 
-  return <SeasonShootingTableContent {...props} data={data} filtered={filtered} />
-}
+  return <SeasonShootingTableContent {...props} tableData={tableData} filtered={filtered} />
+})
 
 export default SeasonShootingTable

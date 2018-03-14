@@ -14,8 +14,10 @@ export const shootingColorMap = {
 const axisStyle = {
   axis: { stroke: '#000', strokeWidth: 3 },
   axisLabel: { fontSize: 16, textAnchor: 'middle', padding: 25 },
-  tickLabels: { fontSize: 12, padding: 5, fill: '#000' }
+  tickLabels: { fontSize: 12, padding: 5, fill: '#000' },
 }
+
+const dependentGrid = { stroke: '#ccc', strokeDasharray: '10,10' }
 
 export const theme = {
   defaultChartProps: {
@@ -30,7 +32,7 @@ export const theme = {
     data: { strokeWidth: 3 }
   },
   scatter: {
-    data: { strokeWidth: 2 }
+    data: { strokeWidth: (d, active) => active ? 4 : 2 }
   },
   axis: {
     style: axisStyle
@@ -39,7 +41,7 @@ export const theme = {
     style: { ...axisStyle, tickLabels: { ...axisStyle.tickLabels, padding: 8 } }
   },
   dependentAxis: {
-    style: { ...axisStyle, axisLabel: { ...axisStyle.axisLabel, padding: 30 } }
+    style: { ...axisStyle, axisLabel: { ...axisStyle.axisLabel, padding: 30 }, grid: dependentGrid }
   }
 }
 

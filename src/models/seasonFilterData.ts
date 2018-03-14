@@ -1,9 +1,13 @@
 import { observable, action, computed } from 'mobx'
 import * as moment from 'moment'
 import { Moment } from 'moment'
-import { GameLog } from 'nba-netdata/dist/types'
+import { Season, GameLog } from 'nba-netdata/dist/types'
 
 interface MomentDateRange { startDate: Moment, endDate: Moment }
+
+export interface SeasonFilterProps {
+  filterData: SeasonFilterData
+}
 
 export class SeasonFilterData {
     readonly rangeBounds = {
@@ -11,7 +15,9 @@ export class SeasonFilterData {
       endDate: moment('2018-04-11')
     }
 
+    @observable season: Season = '2017-18'
     @observable dateRange: MomentDateRange = { ...this.rangeBounds }
+    @observable activeGameId: string | null = null
 
     static isWithinRange(day: Moment, range: MomentDateRange): boolean {
       return range.startDate.isSameOrBefore(day) && range.endDate.isSameOrAfter(day)
@@ -20,8 +26,22 @@ export class SeasonFilterData {
     @computed get startDate() { return this.dateRange.startDate }
     @computed get endDate() { return this.dateRange.endDate }
 
+    @action reset() {
+      this.season = '2017-18'
+      this.dateRange = { ...this.rangeBounds }
+      this.activeGameId = null
+    }
+
     @action setDateRange(range: MomentDateRange) {
       this.dateRange = range
+    }
+
+    @action setActiveGameId(gameId: string | null) {
+      this.activeGameId = gameId
+    }
+
+    @action clearActiveGameId() {
+      this.setActiveGameId(null)
     }
 
     isWithinBounds(day: Moment) {
@@ -44,5 +64,4 @@ export class SeasonFilterData {
     }
 }
 
-const store = new SeasonFilterData()
-export default store
+export default SeasonFilterData

@@ -67,7 +67,7 @@ export function getStatTitle(stat: ShootingStat) {
   }
 }
 
-export function getStatTooltipText(data: EnhancedShootingStats, stat: ShootingStat) {
+export function getStatMadeAttemptedText(data: EnhancedShootingStats, stat: ShootingStat) {
   const mat = (m: number, a: number) => `${m} / ${a}`
 
   switch (stat) {

@@ -1,6 +1,10 @@
 import { observable, action, computed } from 'mobx'
 import { ShootingStat } from 'nba-netdata/dist/calc'
 
+export interface ShootingFilterDataProps {
+  shootingFilterData: ShootingFilterData
+}
+
 export class ShootingFilterData {
     @observable shootingStatsEnabled = {
       effectiveFieldGoalPercentage: false,

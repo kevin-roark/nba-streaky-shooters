@@ -16,6 +16,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "emotion": "^9.0.2",
+    "lodash.throttle": "^4.1.1",
     "mobx": "^4.0.0",
     "mobx-react": "^5.0.0",
     "mobx-react-devtools": "^4.2.15",
