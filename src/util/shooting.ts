@@ -1,6 +1,6 @@
 import { ShootingStat, EnhancedShootingStats } from 'nba-netdata/dist/calc'
 
-export interface ShootingColumn { Header: string, key: ShootingStat, title: string }
+export interface ShootingColumn { header: string, key: ShootingStat, title: string }
 
 const shootingColumnKeys: ShootingStat[] = [
   'effectiveFieldGoalPercentage',
@@ -12,7 +12,7 @@ const shootingColumnKeys: ShootingStat[] = [
 ]
 
 export const shootingColumns: ShootingColumn[] = shootingColumnKeys.map(key => ({
-  key, Header: getStatAbbr(key), title: getStatTitle(key)
+  key, header: getStatAbbr(key), title: getStatTitle(key)
 }))
 
 export function getStatAbbr(stat: ShootingStat) {
@@ -67,8 +67,12 @@ export function getStatTitle(stat: ShootingStat) {
   }
 }
 
+export function madeAttemptedText(made: number, attempted: number) {
+  return `${made} / ${attempted}`
+}
+
 export function getStatMadeAttemptedText(data: EnhancedShootingStats, stat: ShootingStat) {
-  const mat = (m: number, a: number) => `${m} / ${a}`
+  const mat = madeAttemptedText
 
   switch (stat) {
     case 'twoPointPercentage':
@@ -91,4 +95,14 @@ export function getStatMadeAttemptedText(data: EnhancedShootingStats, stat: Shoo
     default:
       return null
   }
+}
+
+export function getStatTooltipText(data: EnhancedShootingStats, stat: ShootingStat) {
+  if (stat === 'effectiveFieldGoalPercentage') {
+    const twoP = madeAttemptedText(data.twoPointersMade, data.twoPointersAttempted)
+    const threeP = madeAttemptedText(data.threePointersMade, data.threePointersAttempted)
+    return `2P: ${twoP}\n3P: ${threeP}`
+  }
+
+  return getStatMadeAttemptedText(data, stat)
 }

@@ -23,12 +23,12 @@ const FirstRowContainer = styled('div')`
 `
 
 const TableWrapper = styled('div')`
-  width: calc(100% - 386px);
+  width: calc(100% - 395px);
   margin-right: 20px;
 `
 
 const ActiveGameWrapper = styled('div')`
-  width: 366px;
+  width: 375px;
 `
 
 const PlayerSeasonData = observer(({ data }: PlayerSeasonDataProps) => {

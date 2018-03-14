@@ -13,7 +13,7 @@ import { DescriptionExplanation, secondaryContainerStyles } from '../layout'
 import { shootingColumns, getStatMadeAttemptedText } from '../util/shooting'
 import { pct } from '../util/format'
 import NumberDiff from './NumberDiff'
-import { Table, TableColumn } from './table/Table'
+import { Table, TableColumn } from './Table2'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
@@ -29,17 +29,17 @@ const Title = styled('h3')`
 `
 
 const TableWrapper = styled('div')`
-  margin: 15px auto 0 auto;
+  margin: 15px 0 5px 0;
 `
 
 const MoreDetailLinkWrapper = styled('h4')`
-  margin: 10px 0 2px 0;
+  margin: 0;
   font-size: 12px;
   text-align: center;
 `
 
 interface SeasonShootingTooltipTableData extends EnhancedShootingBoxScoreStats {
-  label: string,
+  id: string,
   diff?: boolean
 }
 
@@ -62,18 +62,18 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
 
   const diffData = getStatsDiff(gameStats, filteredAverageStats)
 
-  const gameMadeAttempted = mapStatsToString(gameStats, (s, k: any) => getStatMadeAttemptedText(s, k) || '-')
+  const gameMadeAttempted = mapStatsToString(gameStats, (s, k: any) => (getStatMadeAttemptedText(s, k) || '-').replace(/ /g, ''))
 
-  const tableData = [
-    { ...gameStats, label: 'Game %' },
-    { ...gameMadeAttempted, label: 'Game #' },
-    { ...filteredAverageStats, label: 'Range' },
-    { ...diffData, label: 'Diff', diff: true }
+  const rows = [
+    { ...gameStats, id: 'Game %' },
+    { ...gameMadeAttempted, id: 'Game #' },
+    { ...filteredAverageStats, id: 'Range' },
+    { ...diffData, id: 'Diff', diff: true }
   ]
 
-  const lc: TableColumn<SeasonShootingTooltipTableData> = { Header: '', accessor: 'label', align: 'center', width: 45 }
+  const lc: TableColumn<SeasonShootingTooltipTableData> = { header: '', accessor: 'id', align: 'center', width: 48 }
   const dataColumns = shootingColumns
-    .map(({ Header, key }): TableColumn<SeasonShootingTooltipTableData> => {
+    .map(({ header, key }): TableColumn<SeasonShootingTooltipTableData> => {
       const f = (n: number | string) => {
         if (typeof n === 'string') {
           return n
@@ -85,10 +85,11 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
         return pct(n, true)
       }
 
-      const accessor = (d: SeasonShootingTooltipTableData) =>
-        d.diff ? <NumberDiff diff={d[key]} formatter={f} /> : f(d[key])
-
-      return { Header: Header, id: key, accessor, width: 50 }
+      return {
+        header,
+        accessor: key,
+        formatter: (d, v: number) => d.diff ? <NumberDiff diff={v} formatter={f} /> : f(v)
+      }
     })
 
   const columns = [lc].concat(dataColumns)
@@ -106,7 +107,7 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
     <Container>
       <Title>{fdate} – {firstLink} {connector} {secondLink}</Title>
       <TableWrapper>
-        <Table data={tableData} columns={columns} styles={['minimal', 'small']} />
+        <Table rows={rows} columns={columns} styles={['minimal', 'small']} />
       </TableWrapper>
       {moreDetailLink && <MoreDetailLinkWrapper>{moreDetailLink}</MoreDetailLinkWrapper>}
       <DescriptionExplanation>
