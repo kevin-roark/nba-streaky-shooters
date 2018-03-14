@@ -23,7 +23,7 @@ export const theme = {
   defaultChartProps: {
     width: 960,
     height: 540,
-    padding: { left: 50, top: 10, bottom: 50, right: 10 }
+    padding: { left: 40, top: 10, bottom: 40, right: 10 }
   },
   area: {
     data: { strokeWidth: 3, fillOpacity: 0.4 }
@@ -41,7 +41,7 @@ export const theme = {
     style: { ...axisStyle, tickLabels: { ...axisStyle.tickLabels, padding: 8 } }
   },
   dependentAxis: {
-    style: { ...axisStyle, axisLabel: { ...axisStyle.axisLabel, padding: 30 }, grid: dependentGrid }
+    style: { ...axisStyle, grid: dependentGrid }
   }
 }
 

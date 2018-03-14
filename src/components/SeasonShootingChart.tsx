@@ -3,8 +3,10 @@ import { observe } from 'mobx'
 import { observer } from 'mobx-react'
 import styled from 'react-emotion'
 import * as moment from 'moment'
-import { VictoryContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
-import { ShootingStat } from 'nba-netdata/dist/calc'
+import { VictoryContainer, VictoryBrushContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
+import { GameLog } from 'nba-netdata/dist/types'
+import { ShootingStat, EnhancedShootingBoxScoreStats } from 'nba-netdata/dist/calc'
+import { DescriptionExplanation } from '../layout'
 import { theme, shootingColorMap } from '../theme'
 import { PlayerSeasonDataProps } from '../models/seasonData'
 import defaultShootingFilterData, { ShootingFilterDataProps } from '../models/shootingFilterData'
@@ -21,6 +23,7 @@ const ChartWrapper = styled('div')`
   width: 100%;
   margin-right: 20px;
   background-color: #fff;
+  border: 1px solid #ccc;
 `
 
 interface SeasonShootingChartProps extends PlayerSeasonDataProps {
@@ -57,7 +60,7 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
 
   get xDomain() {
     const { xValues } = this.props
-    return [xValues[0], xValues[xValues.length - 1]]
+    return xValues.length > 0 ? [xValues[0], xValues[xValues.length - 1]] : [0, 0]
   }
 
   get chartBoundsWithPadding() {
@@ -149,7 +152,7 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
   }
 
   render() {
-    const { xValues, series, data, width = 960, height = 540 } = this.props
+    const { xValues, series, data, width = 960, height = 384 } = this.props
 
     series.forEach(s => {
       s.data.forEach(d => {
@@ -166,70 +169,133 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
       domainPadding: { x: [10, 10], y: [0, 0] }
     }
 
-    const currentXValue = data.activeGame ? moment(data.activeGame.game.GAME_DATE).valueOf() : null
-
     return (
-      <ChartWrapper>
-        <VictoryChart {...chartProps}>
-          <VictoryAxis
-            label="Games"
-            style={theme.independentAxis.style}
-            tickCount={Math.min(xValues.length, 5)}
-            tickValues={xValues}
-            tickFormat={d => moment(d).format('MM/DD/YY')}
-          />
-          <VictoryAxis
-            dependentAxis={true}
-            label="Accuracy"
-            style={theme.dependentAxis.style}
-            tickValues={[0.25, 0.5, 0.75, 1]}
-            tickFormat={t => `${(t * 100).toFixed(0)}%`}
-          />
+      <VictoryChart {...chartProps}>
+        <VictoryAxis
+          style={theme.independentAxis.style}
+          tickCount={Math.min(xValues.length, 5)}
+          tickValues={xValues}
+          tickFormat={d => moment(d).format('MM/DD/YY')}
+        />
+        <VictoryAxis
+          dependentAxis={true}
+          style={theme.dependentAxis.style}
+          tickValues={[0.25, 0.5, 0.75, 1]}
+          tickFormat={t => `${(t * 100).toFixed(0)}%`}
+        />
 
-          {data.activeGame && (
-            <VictoryLine
-              data={[{ x: currentXValue, y: 0 }, { x: currentXValue, y: 1 }]}
-              style={{ data: { stroke: '#000', strokeWidth: 2, strokeDasharray: '10,10' } }}
-            />
-          )}
+        {data.activeGame && (
+          <VictoryLine
+            data={[{ x: data.activeGameTime, y: 0 }, { x: data.activeGameTime, y: 1 }]}
+            style={{ data: { stroke: '#000', strokeWidth: 2, strokeDasharray: '10,10' } }}
+          />
+        )}
 
-          <VictoryGroup>
-            {series.map(({ key, data: seriesData, color }) => (
-              <VictoryGroup key={key} style={{ data: { fill: color, stroke: color } }} data={seriesData}>
-                <VictoryScatter symbol="circle" style={theme.scatter} />
-              </VictoryGroup>
-            ))}
-          </VictoryGroup>
-        </VictoryChart>
-      </ChartWrapper>
+        <VictoryGroup>
+          {series.map(({ key, data: seriesData, color }) => (
+            <VictoryGroup key={key} style={{ data: { fill: color, stroke: color } }} data={seriesData}>
+              <VictoryScatter symbol="circle" style={theme.scatter} />
+            </VictoryGroup>
+          ))}
+        </VictoryGroup>
+      </VictoryChart>
     )
   }
 }
 
+interface SeasonShootingBrushChartProps extends SeasonShootingChartProps {
+  series: { key: ShootingStat, color: string, data: SeasonShootingData[] }[],
+}
+
+const SeasonShootingBrushChart = observer((props: SeasonShootingBrushChartProps) => {
+  const { series, data } = props
+
+  const brushChartProps = {
+    ...theme.defaultChartProps,
+    height: 120,
+    padding: { ...theme.defaultChartProps.padding, bottom: 30 },
+    containerComponent: (
+      <VictoryBrushContainer
+        responsive={true}
+        brushDimension="x"
+        brushStyle={{ fill: 'orange', fillOpacity: 0.1 }}
+        // brushDomain={{ x: data.filterData.timeRange, y: [0, 1] }}
+        onBrushDomainChange={(domain: { x: [number, number], y: [number, number] }) => {
+          data.filterData.setDateRangeFromTimes(domain.x[0], domain.x[1])
+        }}
+      />
+    )
+  }
+
+  const monthsSet = new Set<string>()
+  const brushTickValues: number[] = []
+  data.allGameDates.forEach(d => {
+    const m = d.format('MM/YY')
+    if (!monthsSet.has(m)) {
+      monthsSet.add(m)
+      brushTickValues.push(moment(d.format('MM/DD/YY')).valueOf())
+    }
+  })
+
+  const axisStyle = { ...theme.independentAxis.style }
+
+  return (
+    <VictoryChart {...brushChartProps}>
+      <VictoryAxis
+        style={axisStyle}
+        tickValues={brushTickValues}
+        tickFormat={d => moment(d).format('MM/YY')}
+      />
+      {series.map(({ key, data: seriesData, color }) => {
+        const style = { data: { ...theme.scatter.data, stroke: color }}
+        return <VictoryLine key={key} style={style} data={seriesData} />
+      })}
+
+      {data.activeGame && (
+        <VictoryLine
+          data={[{ x: data.activeGameTime, y: 0 }, { x: data.activeGameTime, y: 1 }]}
+          style={{ data: { stroke: '#000', strokeWidth: 2 } }}
+        />
+      )}
+    </VictoryChart>
+  )
+})
+
 const SeasonShootingChart = observer((props: SeasonShootingChartProps & ShootingFilterDataProps) => {
   const { data, shootingFilterData } = props
-  const { filteredGames, filteredStats } = data
+  const { allStats, allGames, filteredGames, filteredStats } = data
 
-  const dates = filteredGames.map(game => moment(game.GAME_DATE))
-  let xValues = dates.map(d => d.valueOf())
+  const allXValues = allGames.map(game => game.date.valueOf())
+  const filteredXValues = filteredGames.map(game => game.date.valueOf())
 
-  const series = shootingFilterData.enabledStats
-    .map(key => {
-      const seriesData = filteredStats
-        .map((item, idx) => ({ x: xValues[idx], y: item[key], filteredIdx: idx, gameId: filteredGames[idx].GAME_ID }))
-        .filter(d => !isNaN(d.y))
+  const getSeries = (stats: EnhancedShootingBoxScoreStats[], games: GameLog[], xValues: number[]) => {
+    return shootingFilterData.enabledStats
+     .map(key => {
+       const seriesData = stats
+         .map((item, idx) => ({ x: xValues[idx], y: item[key], filteredIdx: idx, gameId: games[idx].GAME_ID }))
+         .filter(d => !isNaN(d.y))
 
-      return { key, data: seriesData, color: shootingColorMap[key] }
-    })
+       return { key, data: seriesData, color: shootingColorMap[key] }
+     })
+   }
+
+  const allSeries = getSeries(allStats, allGames, allXValues)
+  const filteredSeries = getSeries(filteredStats, filteredGames, filteredXValues)
 
   return (
     <Container>
-      <SeasonShootingChartData
-        {...props}
-        xValues={xValues}
-        series={series}
-        inputData={inputDataStore}
-      />
+      <ChartWrapper>
+        <SeasonShootingChartData
+          {...props}
+          xValues={filteredXValues}
+          series={filteredSeries}
+          inputData={inputDataStore}
+        />
+        <SeasonShootingBrushChart {...props} series={allSeries} />
+        <DescriptionExplanation style={{ paddingLeft: 40, paddingBottom: 20 }}>
+          Drag and pan lower graph to select range of games.
+        </DescriptionExplanation>
+      </ChartWrapper>
       <div>
         <ShootingDataLegend filterData={shootingFilterData} />
       </div>

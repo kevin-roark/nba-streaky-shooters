@@ -1,4 +1,5 @@
 import { observable, action, computed } from 'mobx'
+import * as moment from 'moment'
 import { TeamAbbreviation, Season, PlayerBoxScores, BoxScore } from 'nba-netdata/dist/types'
 import { calcShootingDataFromBoxScoreStats, combineBoxScoreStatsWithShootingData } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
@@ -31,12 +32,15 @@ export class PlayerSeasonData extends SeasonData {
   @computed get enhancedBoxScores() {
     const scores = this.scores ? this.scores.scores : []
     return scores.map(b => ({
-      game: b.game,
+      game: { ...b.game, date: moment(b.game.GAME_DATE) },
       stats: calcShootingDataFromBoxScoreStats(b.stats)
     }))
   }
   @computed get allGames() {
     return this.enhancedBoxScores.map(b => b.game)
+  }
+  @computed get allGameDates() {
+    return this.allGames.map(game => game.date)
   }
   @computed get allStats() {
     return this.enhancedBoxScores.map(b => b.stats)
@@ -45,7 +49,7 @@ export class PlayerSeasonData extends SeasonData {
     return this.filterData.filterStats(this.enhancedBoxScores)
   }
   @computed get filteredGames() {
-    return this.filteredScores.map(s => s.game)
+    return this.filteredScores.map(b => b.game)
   }
   @computed get filteredStats() {
     return this.filteredScores.map(s => s.stats)
@@ -70,6 +74,9 @@ export class PlayerSeasonData extends SeasonData {
   @computed get activeGame() {
     const index = this.activeGameFilteredIndex
     return index < 0 ? null : this.filteredScores[index]
+  }
+  @computed get activeGameTime() {
+    return this.activeGame ? this.activeGame.game.date.valueOf() : -1
   }
 
   @action reset() {

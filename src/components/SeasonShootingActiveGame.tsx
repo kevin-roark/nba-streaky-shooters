@@ -2,7 +2,6 @@ import * as React from 'react'
 import { observer } from 'mobx-react'
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom'
 import styled from 'react-emotion'
-import * as moment from 'moment'
 import {
   EnhancedShootingBoxScoreStats,
   getStatsDiff,
@@ -68,7 +67,7 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
   const tableData = [
     { ...gameStats, label: 'Game %' },
     { ...gameMadeAttempted, label: 'Game #' },
-    { ...filteredAverageStats, label: 'All' },
+    { ...filteredAverageStats, label: 'Range' },
     { ...diffData, label: 'Diff', diff: true }
   ]
 
@@ -94,8 +93,8 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
 
   const columns = [lc].concat(dataColumns)
 
-  const { GAME_DATE: date, TEAM_ABBREVIATION: team, OPPONENT_TEAM_ABBREVIATION: otherTeam, GAME_ID: id } = game
-  const fdate = moment(date).format('MM/DD/YY')
+  const { date, TEAM_ABBREVIATION: team, OPPONENT_TEAM_ABBREVIATION: otherTeam, GAME_ID: id } = game
+  const fdate = date.format('MM/DD/YY')
   const firstLink = <Link to={routes.getTeamGameRoute(team, id)}>{team}</Link>
   const secondLink = <Link to={routes.getTeamGameRoute(otherTeam, id)}>{otherTeam}</Link>
   const connector = game.HOME ? 'vs.' : '@'
@@ -111,7 +110,7 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
       </TableWrapper>
       {moreDetailLink && <MoreDetailLinkWrapper>{moreDetailLink}</MoreDetailLinkWrapper>}
       <DescriptionExplanation>
-        All calculated with games shown in graph.
+        Range calculated across games shown in graph.
       </DescriptionExplanation>
     </Container>
   )

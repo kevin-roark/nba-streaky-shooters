@@ -11,8 +11,8 @@ export interface SeasonFilterProps {
 
 export class SeasonFilterData {
     readonly rangeBounds = {
-      startDate: moment('2017-10-17'),
-      endDate: moment('2018-04-11')
+      startDate: moment('2017-10-20'),
+      endDate: moment('2018-03-07')
     }
 
     @observable season: Season = '2017-18'
@@ -25,6 +25,9 @@ export class SeasonFilterData {
 
     @computed get startDate() { return this.dateRange.startDate }
     @computed get endDate() { return this.dateRange.endDate }
+    @computed get timeRange() {
+      return [this.dateRange.startDate.valueOf(), this.dateRange.endDate.valueOf()]
+    }
 
     @action reset() {
       this.season = '2017-18'
@@ -34,6 +37,10 @@ export class SeasonFilterData {
 
     @action setDateRange(range: MomentDateRange) {
       this.dateRange = range
+    }
+
+    @action setDateRangeFromTimes(t1: number, t2: number) {
+      this.setDateRange({ startDate: moment(t1), endDate: moment(t2) })
     }
 
     @action setActiveGameId(gameId: string | null) {
