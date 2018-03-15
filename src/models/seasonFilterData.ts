@@ -2,6 +2,8 @@ import { observable, action, computed } from 'mobx'
 import * as moment from 'moment'
 import { Moment } from 'moment'
 import { Season, GameLog } from 'nba-netdata/dist/types'
+import { boxScoreSeasons, getSeasonInfo } from 'nba-netdata/dist/data'
+import defaultShootinFilterData from './shootingFilterData'
 
 interface MomentDateRange { startDate: Moment, endDate: Moment }
 
@@ -10,19 +12,27 @@ export interface SeasonFilterProps {
 }
 
 export class SeasonFilterData {
-    readonly rangeBounds = {
-      startDate: moment('2017-10-20'),
-      endDate: moment('2018-03-07')
-    }
+    static allSeasons = boxScoreSeasons
 
-    @observable season: Season = '2017-18'
+    @observable season: Season | null = '2017-18'
     @observable dateRange: MomentDateRange = { ...this.rangeBounds }
     @observable activeGameId: string | null = null
+    @observable shootingFilter = defaultShootinFilterData
 
     static isWithinRange(day: Moment, range: MomentDateRange): boolean {
       return range.startDate.isSameOrBefore(day) && range.endDate.isSameOrAfter(day)
     }
 
+    @computed get rangeBounds() {
+      if (!this.season) {
+        const firstSeasonInfo = getSeasonInfo(boxScoreSeasons[boxScoreSeasons.length - 1])
+        const lastSeasonInfo = getSeasonInfo(boxScoreSeasons[0])
+        return { startDate: moment(firstSeasonInfo.startDate), endDate: moment(lastSeasonInfo.endDate) }
+      }
+
+      const seasonInfo = getSeasonInfo(this.season)
+      return { startDate: moment(seasonInfo.startDate), endDate: moment(seasonInfo.endDate) }
+    }
     @computed get startDate() { return this.dateRange.startDate }
     @computed get endDate() { return this.dateRange.endDate }
     @computed get timeRange() {
@@ -30,9 +40,13 @@ export class SeasonFilterData {
     }
 
     @action reset() {
-      this.season = '2017-18'
-      this.dateRange = { ...this.rangeBounds }
+      this.setSeason('2017-18')
       this.activeGameId = null
+    }
+
+    @action setSeason(season: Season | null) {
+      this.season = season
+      this.setDateRange(this.rangeBounds)
     }
 
     @action setDateRange(range: MomentDateRange) {

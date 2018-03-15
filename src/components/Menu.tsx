@@ -1,21 +1,43 @@
 import * as React from 'react'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { withRouter, RouteComponentProps, Link } from 'react-router-dom'
 import styled from 'react-emotion'
-import { mobileBreakpoint } from '../layout'
+import { css } from 'emotion'
+import { allPlayers, allTeams } from '../routes'
 import RoutingNBASearch from './RoutingNBASearch'
 
 const Container = styled('div')`
   width: 100vw;
-  height: 80px;
-  padding: 0 16px;
+  height: 60px;
+  padding: 0 24px;
   background-color: #eee;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
+`
 
-  @media(${mobileBreakpoint}) {
-    height: 80px;
+const AppTitle = styled('h1')`
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+`
+
+const NavContainer = styled('div')`
+  display: flex;
+  align-items: center;
+`
+
+const menuLinkClass = css`
+  display: block;
+  padding: 8px;
+  margin-left: 15px;
+  border: 1px solid #000;
+  background-color: #fff;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #eee;
   }
 `
 
@@ -27,7 +49,12 @@ const Menu = (props: RouteComponentProps<any>) => {
 
   return (
     <Container>
-      <RoutingNBASearch />
+      <AppTitle>NBA Streaky Shooters</AppTitle>
+      <NavContainer>
+        <RoutingNBASearch />
+        <Link className={menuLinkClass} to={allPlayers}>View All Players</Link>
+        <Link className={menuLinkClass} to={allTeams}>View All Teams</Link>
+      </NavContainer>
     </Container>
   )
 }

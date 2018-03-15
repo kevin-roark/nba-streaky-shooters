@@ -12,7 +12,7 @@ export const notMobileBreakpoint = 'min-width: 801px'
 
 export const PageContainer = styled('div')``
 export const ContentContainer = styled('div')`
-  max-width: 1600px;
+  max-width: 1440px;
   margin: 0 auto;
 
   @media(max-width: 1650px) {
@@ -21,15 +21,19 @@ export const ContentContainer = styled('div')`
   }
 `
 
+export const secondaryBorderStyles = css`
+  border: 1px solid #000;
+`
+
 export const secondaryContainerStyles = css`
+  ${secondaryBorderStyles};
   padding: 20px;
   background: #fafafa;
-  border: 1px solid #ccc;
 `
 
 export const PageTitle = styled('h1')`
   margin-top: 0;
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 500;
 `
 

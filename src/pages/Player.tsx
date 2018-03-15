@@ -8,19 +8,25 @@ import TogglingSubMenu from '../components/TogglingSubMenu'
 import PlayerSeason from '../components/PlayerSeason'
 
 const TopHeader = styled('div')`
-  margin: 25px 0;
-  padding: 12px 12px 16px 12px;
+  position: relative;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 16px 12px 16px 12px;
   border: 2px solid #000;
   background-color: #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  text-align: center;
 `
 
-const TopHeaderSection = styled('div')``
+const SubMenuWrapper = styled('div')`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+`
 
 const CurrentTeam = styled('h2')`
+  margin-top: 12px;
   font-size: 24px;
+  font-weight: 400;
 `
 
 interface PlayerProps extends RouteComponentProps<any> {
@@ -31,30 +37,31 @@ const containerWrap = (content: any) =>
   <PageContainer><ContentContainer>{content}</ContentContainer></PageContainer>
 
 const PlayerMenuItems = {
-  acrossSeason: 'Across Season',
-  withinGame: 'Within Game'
+  seasonShooting: 'Season Shooting',
+  gameShooting: 'Game Shooting'
 }
 
 const Player = (props: PlayerProps) => {
   const { history, match, location } = props
   const { playerId, gameId } = match.params as { playerId?: string, gameId?: string }
-  const { season } = routes.parseQueryParams(location.search)
 
   const player = playerId ? getPlayerWithSimpleId(playerId) : null
-  const playerTeams = player ? player.teams[season] : null
+  const sortedSeasons = player ? Object.keys(player.teams).sort() : []
+  const mostRecentSeason = sortedSeasons.length > 0 ? sortedSeasons[sortedSeasons.length - 1] : null
+  const playerTeams = player && mostRecentSeason ? player.teams[mostRecentSeason] : null
   if (!playerId || !player || !playerTeams || playerTeams.length === 0) {
     return containerWrap(<h1>Player Not Found. Try searching for another.</h1>)
   }
 
-  const acrossSeason = !location.pathname.includes('/game')
+  const seasonShooting = !location.pathname.includes('/game')
 
   const subMenuProps = {
-    menuItems: [PlayerMenuItems.acrossSeason, PlayerMenuItems.withinGame],
-    currentMenuItem: acrossSeason ? PlayerMenuItems.acrossSeason : PlayerMenuItems.withinGame,
+    menuItems: [PlayerMenuItems.seasonShooting, PlayerMenuItems.gameShooting],
+    currentMenuItem: seasonShooting ? PlayerMenuItems.seasonShooting : PlayerMenuItems.gameShooting,
     onSelect: (item) => {
-      if (item === PlayerMenuItems.acrossSeason) {
+      if (item === PlayerMenuItems.seasonShooting) {
         history.push(routes.getPlayerRoute(playerId))
-      } else if (item === PlayerMenuItems.withinGame) {
+      } else if (item === PlayerMenuItems.gameShooting) {
         history.push(routes.getPlayerGameRoute(playerId, gameId))
       }
     }
@@ -62,22 +69,20 @@ const Player = (props: PlayerProps) => {
 
   const playerName = `${player.firstName} ${player.lastName}`
   const playerCurrentTeam = getTeamWithAbbreviation(playerTeams[playerTeams.length - 1].team)
-  const teamRoute = acrossSeason
+  const teamRoute = seasonShooting
     ? routes.getTeamRoute(playerCurrentTeam.abbreviation)
     : routes.getTeamGameRoute(playerCurrentTeam.abbreviation, gameId)
 
   return containerWrap((
     <div>
       <TopHeader>
-        <TopHeaderSection>
-          <PageTitle>{playerName}</PageTitle>
-          <CurrentTeam><Link to={teamRoute}>{playerCurrentTeam.name}</Link></CurrentTeam>
-        </TopHeaderSection>
-        <TopHeaderSection>
+        <PageTitle>{playerName}</PageTitle>
+        <CurrentTeam><Link to={teamRoute}>{playerCurrentTeam.name}</Link></CurrentTeam>
+        <SubMenuWrapper>
           <TogglingSubMenu {...subMenuProps} />
-        </TopHeaderSection>
+        </SubMenuWrapper>
       </TopHeader>
-      {acrossSeason && <PlayerSeason player={player} season={season} />}
+      {seasonShooting && <PlayerSeason player={player} />}
     </div>
   ))
 }

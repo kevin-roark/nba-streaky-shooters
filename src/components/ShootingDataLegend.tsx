@@ -4,15 +4,11 @@ import styled from 'react-emotion'
 import * as cx from 'classnames'
 import { ShootingStat } from 'nba-netdata/dist/calc'
 import { ShootingFilterData } from '../models/shootingFilterData'
-import { DescriptionExplanation, secondaryContainerStyles } from '../layout'
+import { DescriptionExplanation } from '../layout'
 import { shootingColorMap } from '../theme'
 import { getStatAbbr } from '../util/shooting'
 
-const Container = styled('div')`
-  ${secondaryContainerStyles};
-  width: 200px;
-`
-
+const Container = styled('div')``
 const Legend = styled('ul')``
 
 const LegendItem = styled('li')`
@@ -75,7 +71,7 @@ const ShootingDataLegend = ({ filterData, visibleKeys = defaultVisibleKeys }: Sh
           </LegendItem>
         ))}
       </Legend>
-      <DescriptionExplanation>Click any legend item to toggle its visibility.</DescriptionExplanation>
+      <DescriptionExplanation>Toggle visible stats.</DescriptionExplanation>
     </Container>
   )
 }

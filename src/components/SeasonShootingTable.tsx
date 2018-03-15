@@ -15,7 +15,8 @@ import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
-  padding-bottom: 10px;
+  padding-bottom: 15px;
+  min-height: 180px;
 `
 
 const TextTooltip = styled('div')`
@@ -80,7 +81,7 @@ const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingT
   })))
 
   return (
-    <Container>
+    <div>
       <Table rows={rows} columns={columns} />
       <DescriptionExplanation>
         {filtered && 'Colored values are differences between stats over current games and season average. '}
@@ -88,7 +89,7 @@ const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingT
         Stat definitions taken from {' '}
         <a href="https://www.basketball-reference.com/about/glossary.html" target="_blank">Basketball Reference</a>.
       </DescriptionExplanation>
-    </Container>
+    </div>
   )
 })
 
@@ -108,7 +109,11 @@ export const SeasonShootingTable = observer((props: SeasonShootingTableProps) =>
     { all: allIQR, filtered: filteredIQR, id: 'IQR' }
   ]
 
-  return <SeasonShootingTableContent {...props} rows={rows} filtered={filtered} />
+  const content = allStats.length === 0 ? null : (
+    <SeasonShootingTableContent {...props} rows={rows} filtered={filtered} />
+  )
+
+  return <Container>{content}</Container>
 })
 
 export default SeasonShootingTable

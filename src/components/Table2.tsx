@@ -23,7 +23,10 @@ const TableContainer = styled('div')`
 export const TableCell = styled('div')`
   position: relative;
   text-align: right;
-  border-right: 1px solid #ccc;
+
+  &:not(:last-child) {
+    border-right: 1px solid #ddd;
+  }
 
   &.left {
     text-align: left;
@@ -37,8 +40,6 @@ export const TableCell = styled('div')`
   }
 
   &.minimal {
-    border-right: 1px solid #ccc;
-
     &:first-child {
       border-right: 1px solid #000;
     }

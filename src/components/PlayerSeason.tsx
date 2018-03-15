@@ -1,56 +1,80 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import styled from 'react-emotion'
-import { Season, PlayerInfo } from 'nba-netdata/dist/types'
+import { css } from 'emotion'
+import { PlayerInfo } from 'nba-netdata/dist/types'
 import { PlayerSeasonDataProps, playerSeasonData } from '../models/seasonData'
-import ErrorMessage from './ErrorMessage'
-import Loading from './Loading'
+import DataStatus from './DataStatus'
 import SeasonDataFilter from './SeasonDataFilter'
 import SeasonShootingTable from './SeasonShootingTable'
 import SeasonShootingActiveGame from './SeasonShootingActiveGame'
 import SeasonShootingChart from './SeasonShootingChart'
 
-const Container = styled('div')`
-  margin: 0 auto 0 auto;
-  max-width: 1440px;
+const Container = styled('div')``
+
+const contentWrapper = css`
+  margin-right: 20px;
 `
 
-const FirstRowContainer = styled('div')`
-  height: 200px;
-  margin-bottom: 20px;
+const rowContainer = css`
   display: flex;
   align-items: flex-start;
 `
 
-const TableWrapper = styled('div')`
-  width: calc(100% - 395px);
-  margin-right: 20px;
+const FirstRowContainer = styled('div')`
+  ${rowContainer};
+  margin-bottom: 20px;
 `
 
-const ActiveGameWrapper = styled('div')`
+const TableWrapper = styled('div')`
+  ${contentWrapper};
+  width: calc(100% - 395px);
+`
+
+const FirstRowSidebar = styled('div')`
   width: 375px;
+`
+
+const SecondRowContainer = styled('div')`
+  ${rowContainer};
+`
+
+const ChartWrapper = styled('div')`
+  ${contentWrapper};
+  width: 100%;
+`
+
+const SecondRowSidebar = styled('div')`
+  width: 210px;
 `
 
 const PlayerSeasonData = observer(({ data }: PlayerSeasonDataProps) => {
   return (
     <Container>
-      <SeasonDataFilter data={data.filterData} />
+      <DataStatus data={data.scores} loading={data.loading} loadError={data.loadError} />
+
       <FirstRowContainer>
         <TableWrapper>
           <SeasonShootingTable data={data} />
         </TableWrapper>
-        <ActiveGameWrapper>
+        <FirstRowSidebar>
           <SeasonShootingActiveGame data={data} />
-        </ActiveGameWrapper>
+        </FirstRowSidebar>
       </FirstRowContainer>
-      <SeasonShootingChart data={data} />
+      <SecondRowContainer>
+        <ChartWrapper>
+          <SeasonShootingChart data={data} />
+        </ChartWrapper>
+        <SecondRowSidebar>
+          <SeasonDataFilter data={data.filterData} />
+        </SecondRowSidebar>
+      </SecondRowContainer>
     </Container>
   )
 })
 
 interface PlayerSeasonProps {
-  player: PlayerInfo,
-  season: Season
+  player: PlayerInfo
 }
 
 @observer
@@ -70,15 +94,7 @@ class PlayerSeason extends React.Component<PlayerSeasonProps & PlayerSeasonDataP
   }
 
   render() {
-    const { data } = this.props
-    if (data.loading) {
-      return <Loading message="Loading" />
-    }
-    if (data.loadError || !data.scores) {
-      return <ErrorMessage message={`${data.loadError} — Please try refreshing the page.`} />
-    }
-
-    return <PlayerSeasonData data={data} />
+    return <PlayerSeasonData data={this.props.data} />
   }
 }
 

@@ -29,13 +29,15 @@ const Title = styled('h3')`
 `
 
 const TableWrapper = styled('div')`
-  margin: 15px 0 5px 0;
+  margin: 10px 0 5px 0;
 `
 
 const MoreDetailLinkWrapper = styled('h4')`
-  margin: 0;
-  font-size: 12px;
+  margin: 4px 0 0 0;
   text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 `
 
 interface SeasonShootingTooltipTableData extends EnhancedShootingBoxScoreStats {
@@ -54,12 +56,6 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
 
   const { game, stats: gameStats } = activeGame
 
-  const notNaNColumns = shootingColumns
-    .filter(({ key }) => !isNaN(gameStats[key]))
-  if (notNaNColumns.length === 0) {
-    return null
-  }
-
   const diffData = getStatsDiff(gameStats, filteredAverageStats)
 
   const gameMadeAttempted = mapStatsToString(gameStats, (s, k: any) => (getStatMadeAttemptedText(s, k) || '-').replace(/ /g, ''))
@@ -67,7 +63,7 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
   const rows = [
     { ...gameStats, id: 'Game %' },
     { ...gameMadeAttempted, id: 'Game #' },
-    { ...filteredAverageStats, id: 'Range' },
+    { ...filteredAverageStats, id: 'All' },
     { ...diffData, id: 'Diff', diff: true }
   ]
 
@@ -111,7 +107,7 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
       </TableWrapper>
       {moreDetailLink && <MoreDetailLinkWrapper>{moreDetailLink}</MoreDetailLinkWrapper>}
       <DescriptionExplanation>
-        Range calculated across games shown in graph.
+        All calculated across range of selected games.
       </DescriptionExplanation>
     </Container>
   )

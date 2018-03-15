@@ -6,24 +6,15 @@ import * as moment from 'moment'
 import { VictoryContainer, VictoryBrushContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
 import { GameLog } from 'nba-netdata/dist/types'
 import { ShootingStat, EnhancedShootingBoxScoreStats } from 'nba-netdata/dist/calc'
-import { DescriptionExplanation } from '../layout'
 import { theme, shootingColorMap } from '../theme'
+import { DescriptionExplanation, secondaryBorderStyles } from '../layout'
 import { PlayerSeasonDataProps } from '../models/seasonData'
-import defaultShootingFilterData, { ShootingFilterDataProps } from '../models/shootingFilterData'
 import inputDataStore, { InputData } from '../models/inputData'
-import ShootingDataLegend from './ShootingDataLegend'
 
 const Container = styled('div')`
-  margin-top: 20px;
-  display: flex;
-  align-items: flex-start;
-`
-
-const ChartWrapper = styled('div')`
-  width: 100%;
-  margin-right: 20px;
+  ${secondaryBorderStyles};
   background-color: #fff;
-  border: 1px solid #ccc;
+  min-height: 400px;
 `
 
 interface SeasonShootingChartProps extends PlayerSeasonDataProps {
@@ -80,7 +71,7 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
   }
 
   componentDidMount() {
-    const { data, inputData, series } = this.props
+    const { data, inputData } = this.props
 
     // when the mouse moves over the chart, we need to update the active game
     const mouseMoveObserver = observe(inputData, 'mousePosition', change => {
@@ -110,18 +101,6 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
       })
 
       if (closestIndex < 0 || closestIndex >= data.filteredGames.length) {
-        return data.filterData.clearActiveGameId()
-      }
-
-      let hasData = false
-      for (const s of series) {
-        hasData = !!s.data.find(item => item.filteredIdx === closestIndex)
-        if (hasData) {
-          break
-        }
-      }
-
-      if (!hasData) {
         return data.filterData.clearActiveGameId()
       }
 
@@ -156,7 +135,8 @@ class SeasonShootingChartData extends React.Component<SeasonShootingChartDataPro
 
     series.forEach(s => {
       s.data.forEach(d => {
-        d.strokeWidth = d.gameId === data.filterData.activeGameId ? 8 : undefined
+        const isActiveGame = d.gameId === data.filterData.activeGameId
+        d.strokeWidth = isActiveGame ? 8 : undefined
       })
     })
 
@@ -219,7 +199,7 @@ const SeasonShootingBrushChart = observer((props: SeasonShootingBrushChartProps)
         responsive={true}
         brushDimension="x"
         brushStyle={{ fill: 'orange', fillOpacity: 0.1 }}
-        // brushDomain={{ x: data.filterData.timeRange, y: [0, 1] }}
+        brushDomain={{ x: data.filterData.timeRange, y: [0, 1] }}
         onBrushDomainChange={(domain: { x: [number, number], y: [number, number] }) => {
           data.filterData.setDateRangeFromTimes(domain.x[0], domain.x[1])
         }}
@@ -261,15 +241,15 @@ const SeasonShootingBrushChart = observer((props: SeasonShootingBrushChartProps)
   )
 })
 
-const SeasonShootingChart = observer((props: SeasonShootingChartProps & ShootingFilterDataProps) => {
-  const { data, shootingFilterData } = props
+const SeasonShootingChart = observer((props: SeasonShootingChartProps) => {
+  const { data } = props
   const { allStats, allGames, filteredGames, filteredStats } = data
 
   const allXValues = allGames.map(game => game.date.valueOf())
   const filteredXValues = filteredGames.map(game => game.date.valueOf())
 
   const getSeries = (stats: EnhancedShootingBoxScoreStats[], games: GameLog[], xValues: number[]) => {
-    return shootingFilterData.enabledStats
+    return data.filterData.shootingFilter.enabledStats
      .map(key => {
        const seriesData = stats
          .map((item, idx) => ({ x: xValues[idx], y: item[key], filteredIdx: idx, gameId: games[idx].GAME_ID }))
@@ -282,28 +262,23 @@ const SeasonShootingChart = observer((props: SeasonShootingChartProps & Shooting
   const allSeries = getSeries(allStats, allGames, allXValues)
   const filteredSeries = getSeries(filteredStats, filteredGames, filteredXValues)
 
-  return (
-    <Container>
-      <ChartWrapper>
-        <SeasonShootingChartData
-          {...props}
-          xValues={filteredXValues}
-          series={filteredSeries}
-          inputData={inputDataStore}
-        />
-        <SeasonShootingBrushChart {...props} series={allSeries} />
-        <DescriptionExplanation style={{ paddingLeft: 40, paddingBottom: 20 }}>
-          Drag and pan lower graph to select range of games.
-        </DescriptionExplanation>
-      </ChartWrapper>
-      <div>
-        <ShootingDataLegend filterData={shootingFilterData} />
-      </div>
-    </Container>
+  const content = allStats.length === 0 ? null : (
+    <div>
+      <SeasonShootingChartData
+        {...props}
+        xValues={filteredXValues}
+        series={filteredSeries}
+        inputData={inputDataStore}
+      />
+      <SeasonShootingBrushChart {...props} series={allSeries} />
+      <DescriptionExplanation style={{ paddingLeft: 40, paddingBottom: 15 }}>
+        Click on upper graph to <b>lock active game</b>.
+        Drag and pan lower graph to <b>select range of games</b>.
+      </DescriptionExplanation>
+    </div>
   )
+
+  return <Container>{content}</Container>
 })
 
-const ConnectedSeasonShootingChart = (props: SeasonShootingChartProps) =>
-  <SeasonShootingChart {...props} shootingFilterData={defaultShootingFilterData} />
-
-export default ConnectedSeasonShootingChart
+export default SeasonShootingChart

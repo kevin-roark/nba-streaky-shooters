@@ -1,22 +1,24 @@
-import { observable, action, computed } from 'mobx'
+import { observable, action, computed, configure, runInAction, observe } from 'mobx'
 import * as moment from 'moment'
-import { TeamAbbreviation, Season, PlayerBoxScores, BoxScore } from 'nba-netdata/dist/types'
+import { TeamAbbreviation, Season, BoxScore, PlayerBoxScores } from 'nba-netdata/dist/types'
 import { calcShootingDataFromBoxScoreStats, combineBoxScoreStatsWithShootingData } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
 import { SeasonFilterData } from './seasonFilterData'
 
+configure({ enforceActions: true }) // don't allow state modifications outside actions
+
 const defaultSeasonFitlerData = new SeasonFilterData()
 
-class SeasonData {
+abstract class SeasonData {
   @observable filterData = defaultSeasonFitlerData
-  @observable season: Season = '2017-18'
   @observable loading = false
   @observable loadError: string | null = null
+
+  @computed get season() { return this.filterData.season }
 
   @action reset() {
     this.loading = false
     this.loadError = null
-    this.season = '2017-18'
     this.filterData.reset()
   }
 }
@@ -27,7 +29,14 @@ export interface PlayerSeasonDataProps {
 
 export class PlayerSeasonData extends SeasonData {
   @observable playerId: string | null = null
-  @observable scores: PlayerBoxScores | null
+  @observable scores: PlayerBoxScores | null = null
+
+  constructor() {
+    super()
+    observe(this.filterData, 'season', change => {
+      this.loadData()
+    })
+  }
 
   @computed get enhancedBoxScores() {
     const scores = this.scores ? this.scores.scores : []
@@ -81,25 +90,35 @@ export class PlayerSeasonData extends SeasonData {
 
   @action reset() {
     super.reset()
-    this.scores = null
     this.playerId = null
   }
 
-  @action async loadData(playerId: string, season: Season) {
-    if ((!playerId || playerId === this.playerId) && season === this.filterData.season) {
+  @action async setPlayerId(playerId: string) {
+    if (playerId === this.playerId) {
       return
     }
 
     this.playerId = playerId
-    this.season = season
-    this.loading = true
-    this.scores = await webDataManager.loadPlayerBoxScores(playerId, season)
-    this.loading = false
-    this.loadError = this.scores ? null : 'Error loading player box scores...'
+    this.loadData()
   }
 
-  @action setPlayerId(playerId: string) {
-    this.loadData(playerId, this.season)
+  @action async loadData() {
+    if (!this.playerId) {
+      this.scores = null
+      this.loading = false
+      this.loadError = null
+      return
+    }
+
+    this.scores = null
+    this.loading = true
+    const scores = await webDataManager.loadPlayerBoxScores(this.playerId, this.season)
+    runInAction(() => {
+      this.scores = scores
+      this.loading = false
+      this.loadError = scores ? null : 'Error loading player box scores...'
+      this.filterData.setActiveGameId(scores ? scores.scores[0].game.GAME_ID : null)
+    })
   }
 }
 
@@ -125,15 +144,17 @@ export class TeamSeasonData extends SeasonData {
     }
 
     this.team = team
-    this.season = season
     this.loading = true
-    this.scores = await webDataManager.loadTeamBoxScores(season, team)
-    this.loading = false
-    this.loadError = this.scores ? null : 'Error loading team box scores...'
+    const scores = await webDataManager.loadTeamBoxScores(season, team)
+    runInAction(() => {
+      this.scores = scores
+      this.loading = false
+      this.loadError = this.scores ? null : 'Error loading team box scores...'
+    })
   }
 
   @action setTeam(team: TeamAbbreviation) {
-    this.loadData(team, this.season)
+    this.team = team
   }
 }
 

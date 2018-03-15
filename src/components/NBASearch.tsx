@@ -5,7 +5,7 @@ import * as cx from 'classnames'
 import Autosuggest from 'react-autosuggest'
 import { getTeamsInfo, getPlayersInfo } from 'nba-netdata/dist/data'
 import { PlayerInfo, TeamInfo } from 'nba-netdata/dist/types'
-import { mobileBreakpoint, serif } from '../layout'
+import { mobileBreakpoint } from '../layout'
 
 export interface TeamOrPlayer {
   team?: TeamInfo,
@@ -32,16 +32,15 @@ const inputStyles = css`
   outline: none;
   border-radius: 0;
   background-color: #fff;
-  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
-  font-family: ${serif};
-
-  padding: 10px 10px;
-  width: 400px;
-  font-size: 24px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+  padding: 6px 10px;
+  width: 300px;
+  font-size: 22px;
 
   &::placeholder {
-    color: #666;
+    color: #aaa;
     font-style: italic;
+    font-weight: 400;
   }
 
   @media (${mobileBreakpoint}) {
@@ -54,6 +53,7 @@ const bigInputStyles = css`
   padding: 40px 25px;
   width: 100%;
   font-size: 36px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
 
   @media (${mobileBreakpoint}) {
     padding: 20px;
@@ -92,7 +92,7 @@ const Container = styled('form')`
   }
 
   & .react-autosuggest__suggestion--highlighted {
-    background-color: #ddd;
+    background-color: #eee;
   }
 
   &.big {
@@ -202,7 +202,7 @@ export class NBASearch extends React.Component<NBASearchProps, NBASearchState> {
 
     const inputProps = {
       value,
-      placeholder: 'Find Player Or Team',
+      placeholder: big ? 'Find Player or Team' : 'Find new player or team',
       onChange: this.onInputChange,
     }
 

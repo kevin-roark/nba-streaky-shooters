@@ -1,12 +1,13 @@
 import * as React from 'react'
 import styled from 'react-emotion'
+import { secondaryBorderStyles } from '../layout'
 
 const Container = styled('div')`
+  ${secondaryBorderStyles};
   position: fixed;
   z-index: 5;
   padding: 10px;
   background: #eee;
-  border: 1px solid #ccc;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
 `
 

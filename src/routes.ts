@@ -3,6 +3,8 @@ import { Season } from 'nba-netdata/dist/types'
 const { PUBLIC_URL } = process.env
 
 export const home = PUBLIC_URL + '/'
+export const allPlayers = PUBLIC_URL + '/players-dashboard'
+export const allTeams = PUBLIC_URL + '/teams-dashboard'
 
 export const getPlayerRoute = (playerId: string) => `${home}player/${playerId}`
 export const getPlayerGameRoute = (playerId: string, gameId?: string) => {

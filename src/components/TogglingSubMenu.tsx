@@ -4,19 +4,22 @@ import * as cx from 'classnames'
 import { sansSerif } from '../layout'
 
 const Container = styled('ul')`
-  display: flex;
-  align-items: center;
+  text-align: left;
 `
 
 const MenuItem = styled('li')`
-  margin: 0 8px;
-  padding: 16px;
+  margin: 0;
+  padding: 8px;
   font-family: ${sansSerif};
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 500;
 
   &:not(.current) {
     cursor: pointer;
+
+    &:hover {
+      background-color: #e8e8e8;
+    }
   }
 
   &.current {

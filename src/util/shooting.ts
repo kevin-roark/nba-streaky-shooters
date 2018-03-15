@@ -68,7 +68,7 @@ export function getStatTitle(stat: ShootingStat) {
 }
 
 export function madeAttemptedText(made: number, attempted: number) {
-  return `${made} / ${attempted}`
+  return `${Number(made)} / ${Number(attempted)}`
 }
 
 export function getStatMadeAttemptedText(data: EnhancedShootingStats, stat: ShootingStat) {

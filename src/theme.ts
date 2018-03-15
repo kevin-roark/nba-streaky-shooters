@@ -1,14 +1,14 @@
 
 export const shootingColorMap = {
-  effectiveFieldGoalPercentage: 'cyan',
-  trueShootingPercentage: 'red',
-  fieldGoalPercentage: 'blue',
-  twoPointPercentage: 'orange',
-  threePointPercentage: 'green',
-  freeThrowPercentage: 'pink',
-  rimPercentage: 'purple',
-  shortMidRangePercentage: 'yellow',
-  longMidRangePercentage: 'black'
+  effectiveFieldGoalPercentage: '#03A9F4',
+  trueShootingPercentage: '#f00',
+  fieldGoalPercentage: '#00796B',
+  twoPointPercentage: '#7E57C2',
+  threePointPercentage: '#00f',
+  freeThrowPercentage: '#4CAF50',
+  rimPercentage: '#E65100',
+  shortMidRangePercentage: '#C2185B',
+  longMidRangePercentage: '#FFC107'
 }
 
 const axisStyle = {
