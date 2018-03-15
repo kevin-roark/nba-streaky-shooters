@@ -11,6 +11,11 @@ export const shootingColorMap = {
   longMidRangePercentage: '#FFC107'
 }
 
+export const shotResultColorMap = {
+  make: '#00f',
+  miss: '#f00'
+}
+
 const axisStyle = {
   axis: { stroke: '#000', strokeWidth: 3 },
   axisLabel: { fontSize: 16, textAnchor: 'middle', padding: 25 },
@@ -32,7 +37,7 @@ export const theme = {
     data: { strokeWidth: 3 }
   },
   scatter: {
-    data: { strokeWidth: (d, active) => active ? 4 : 2 }
+    data: { strokeWidth: (d, active) => active ? 4 : 4 }
   },
   axis: {
     style: axisStyle

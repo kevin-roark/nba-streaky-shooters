@@ -7,3 +7,11 @@ export const pct = (n: number, showP = true) => {
 
   return p.toFixed(1) + (showP ? '%' : '')
 }
+
+export const zpad = (n: number, len = 2) => {
+  let ns = n + ''
+  while (ns.length < len) {
+    ns = '0' + ns
+  }
+  return ns
+}

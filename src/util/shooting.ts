@@ -1,4 +1,5 @@
 import { ShootingStat, EnhancedShootingStats } from 'nba-netdata/dist/calc'
+import { ShotType, FieldGoal } from 'nba-netdata/dist/types'
 
 export interface ShootingColumn { header: string, key: ShootingStat, title: string }
 
@@ -105,4 +106,29 @@ export function getStatTooltipText(data: EnhancedShootingStats, stat: ShootingSt
   }
 
   return getStatMadeAttemptedText(data, stat)
+}
+
+export const allShotTypes = [
+  ShotType.GenericTwoPt, ShotType.Rim, ShotType.ShortMidRange, ShotType.LongMidRange,
+  ShotType.ThreePt, ShotType.FreeThrow
+]
+
+export function getShotTypeTitle(type: ShotType | 'fieldGoal') {
+  switch (type) {
+    case ShotType.FreeThrow:
+      return 'Free Throw'
+    case ShotType.LongMidRange:
+      return 'Long Mid Range'
+    case ShotType.Rim:
+      return 'Rim'
+    case ShotType.ShortMidRange:
+      return 'Short Mid Range'
+    case ShotType.ThreePt:
+      return 'Three Pointer'
+    case ShotType.GenericTwoPt:
+      return 'Two Pointer'
+    case FieldGoal:
+    default:
+      return 'Filed Goal'
+  }
 }

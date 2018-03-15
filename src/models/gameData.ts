@@ -8,8 +8,11 @@ import { PlayerData } from './playerData'
 
 configure({ enforceActions: true }) // don't allow state modifications outside actions
 
-export interface PlaysAndStats {
+export interface Plays {
   plays: PlayByPlayShotDataPoint[],
+}
+
+export interface PlaysAndStats extends Plays {
   stats: EnhancedShootingStats
 }
 
