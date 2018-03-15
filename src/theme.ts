@@ -33,6 +33,9 @@ export const theme = {
   area: {
     data: { strokeWidth: 3, fillOpacity: 0.4 }
   },
+  bar: {
+    data: { strokeWidth: 0 },
+  },
   line: {
     data: { strokeWidth: 3 }
   },

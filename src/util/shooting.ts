@@ -129,6 +129,6 @@ export function getShotTypeTitle(type: ShotType | 'fieldGoal') {
       return 'Two Pointer'
     case FieldGoal:
     default:
-      return 'Filed Goal'
+      return 'Field Goal'
   }
 }

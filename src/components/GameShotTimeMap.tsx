@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
-import { VictoryContainer, VictoryChart, VictoryAxis, VictoryScatter, VictoryTooltip } from 'victory'
+import { VictoryContainer, VictoryChart, VictoryAxis, VictoryScatter, VictoryTooltip, VictoryArea } from 'victory'
 import { getParentShotType, isShotTypeFieldGoal } from 'nba-netdata/dist/calc'
 import { PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { allShotTypes, getShotTypeTitle } from '../util/shooting'
-import { zpad } from '../util/format'
+import { formatSeconds } from '../util/format'
 import { Plays } from '../models/gameData'
 import { BaseChartContainer, monospace } from '../layout'
 import { theme, shotResultColorMap } from '../theme'
@@ -17,28 +17,50 @@ interface GameShotTimeMapProps extends Plays {
 const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
   const { plays, width = 960, height = 384 } = props
 
-  const xTicks = [0, 12 * 60, 24 * 60, 36 * 60, 48 * 60]
-  const formatX = seconds => {
-    const m = Math.floor(seconds / 60)
-    const s = seconds - m * 60
-    return `${zpad(m)}:${zpad(s)}`
+  const xPad = 15
+  const yPad = 0.5
+
+  const xTicks = [0, 12 * 60, 24 * 60, 36 * 60, 48 * 60].map(x => x + xPad)
+  const formatX = x => {
+    const seconds = x - xPad
+    return formatSeconds(seconds)
   }
 
-  const yTicks = ['fieldGoal'].concat(allShotTypes)
+  const orderedShotTypes = ['fieldGoal'].concat(allShotTypes)
+  const getYValue = (s: string) => orderedShotTypes.indexOf(s) + yPad
+  const yTicks = orderedShotTypes.map(getYValue)
+  const formatY = i => getShotTypeTitle(orderedShotTypes[i - yPad] as any)
 
-  const dataPoints: { play: PlayByPlayShotDataPoint, x: number, y: string, miss: boolean, label: string }[] = []
+  const quadrants = xTicks.slice(1).map((x1, i) => {
+    let x0 = xTicks[i]
+    if (i === 0) {
+      x0 -= xPad
+    }
+
+    const y = yTicks.length
+    return {
+      data: [{ x: x0, y }, { x: x1, y }],
+      style: {
+        fill: '#000',
+        fillOpacity: 0.05 + 0.03 * i,
+        strokeWidth: 0
+      }
+    }
+  })
+
+  const dataPoints: { play: PlayByPlayShotDataPoint, x: number, y: number, miss: boolean, label: string }[] = []
   plays.forEach(play => {
-    const { secondsIntoGame: x, shotType, miss, eventDescription } = play
-    const time = formatX(x)
-    const label = `${time} - ${eventDescription}`
+    const { secondsIntoGame, shotType, miss, eventDescription, period, periodSecondsRemaining } = play
+    const x = secondsIntoGame + xPad
+    const label = `Q${period} ${formatSeconds(periodSecondsRemaining)} - ${eventDescription}`
 
-    dataPoints.push({ play, x, y: shotType, miss, label })
+    dataPoints.push({ play, x, y: getYValue(shotType), miss, label })
     const parentType = getParentShotType(shotType)
     if (parentType) {
-      dataPoints.push({ play, x, y: parentType, miss, label })
+      dataPoints.push({ play, x, y: getYValue(shotType), miss, label })
     }
     if (isShotTypeFieldGoal(shotType)) {
-      dataPoints.push({ play, x, y: 'fieldGoal', miss, label })
+      dataPoints.push({ play, x, y: getYValue('fieldGoal'), miss, label })
     }
   })
 
@@ -63,22 +85,28 @@ const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
 
   const chartProps = {
     width, height, containerComponent,
-    padding: { left: 100, top: 10, bottom: 30, right: 10 },
-    domainPadding: { x: [10, 10], y: [10, 10] }
+    padding: { left: 100, top: 10, bottom: 50, right: 10 },
+    domainPadding: { x: 5, y: yPad }
   }
 
   const content = (
     <VictoryChart {...chartProps}>
       <VictoryAxis
+        label="Game Time"
         style={theme.independentAxis.style}
         tickValues={xTicks}
         tickFormat={formatX}
       />
+
+      {quadrants.map((q, i) => (
+        <VictoryArea key={i} data={q.data} style={{ data: q.style }} />
+      ))}
+
       <VictoryAxis
         dependentAxis={true}
-        style={theme.dependentAxis.style}
+        style={{ ...theme.dependentAxis.style, grid: { ...theme.dependentAxis.style.grid, stroke: '#666' }}}
         tickValues={yTicks}
-        tickFormat={getShotTypeTitle}
+        tickFormat={formatY}
       />
 
       <VictoryScatter
