@@ -10,7 +10,7 @@ import Select from './Select'
 
 const Container = styled('div')`
   & .DateInput__small {
-    width: 70px;
+    width: 75px;
   }
 
   & .DateInput_input__small {

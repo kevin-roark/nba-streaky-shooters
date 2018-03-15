@@ -41,11 +41,12 @@ const SecondRowContainer = styled('div')`
 
 const ChartWrapper = styled('div')`
   ${contentWrapper};
-  width: 100%;
+  width: calc(100% - 210px);
 `
 
 const SecondRowSidebar = styled('div')`
-  width: 210px;
+  width: 190px;
+  min-width: 190px;
 `
 
 const PlayerSeasonData = observer(({ data }: PlayerSeasonDataProps) => {

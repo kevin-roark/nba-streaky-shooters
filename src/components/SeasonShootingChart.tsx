@@ -192,7 +192,7 @@ const SeasonShootingBrushChart = observer((props: SeasonShootingBrushChartProps)
 
   const brushChartProps = {
     ...theme.defaultChartProps,
-    height: 120,
+    height: 100,
     padding: { ...theme.defaultChartProps.padding, bottom: 30 },
     containerComponent: (
       <VictoryBrushContainer

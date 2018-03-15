@@ -10,12 +10,15 @@ export const monospace = `'Overpass Mono', monospace`
 export const mobileBreakpoint = 'max-width: 800px'
 export const notMobileBreakpoint = 'min-width: 801px'
 
-export const PageContainer = styled('div')``
+export const PageContainer = styled('div')`
+  min-width: 960px;
+`
+
 export const ContentContainer = styled('div')`
   max-width: 1440px;
   margin: 0 auto;
 
-  @media(max-width: 1650px) {
+  @media(max-width: 1490px) {
     max-width: none;
     margin: 0 25px;
   }
