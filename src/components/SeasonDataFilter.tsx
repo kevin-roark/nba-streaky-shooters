@@ -22,7 +22,6 @@ const Container = styled('div')`
 
 const SubContainer = styled('div')`
   ${secondaryContainerStyles};
-  margin-bottom: 20px;
   padding: 10px;
 `
 
@@ -86,9 +85,8 @@ class SeasonSelector extends React.Component<SeasonDataFilterProps, {}> {
 const SeasonDataFilter = ({ data }: SeasonDataFilterProps) => {
   return (
     <Container>
-      <SubContainer>
-        <ShootingDataLegend filterData={data.shootingFilter} />
-      </SubContainer>
+      <ShootingDataLegend filterData={data.shootingFilter} />
+
       <SubContainer>
         <SeasonSelector data={data} />
         <SeasonDateRangePicker data={data} />

@@ -5,6 +5,8 @@ import { sansSerif } from '../layout'
 
 const Container = styled('ul')`
   text-align: left;
+  display: flex;
+  justify-content: center;
 `
 
 const MenuItem = styled('li')`
@@ -13,17 +15,18 @@ const MenuItem = styled('li')`
   font-family: ${sansSerif};
   font-size: 16px;
   font-weight: 500;
+  user-select: none;
 
   &:not(.current) {
     cursor: pointer;
 
     &:hover {
-      background-color: #e8e8e8;
+      background-color: #f2e9d1;
     }
   }
 
   &.current {
-    background-color: #D8D8D8
+    background-color: #ddd;
   }
 `
 

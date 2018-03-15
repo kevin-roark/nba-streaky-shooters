@@ -2,36 +2,28 @@ import * as React from 'react'
 import { RouteComponentProps, Link } from 'react-router-dom'
 import styled from 'react-emotion'
 import { getPlayerWithSimpleId, getTeamWithAbbreviation } from 'nba-netdata/dist/data'
-import { PageContainer, ContentContainer, PageTitle } from '../layout'
+import { PageContainer, ContentContainer, PageTitle, hoverLinkClass } from '../layout'
 import * as routes from '../routes'
 import TogglingSubMenu from '../components/TogglingSubMenu'
 import PlayerSeason from '../components/PlayerSeason'
 
 const TopHeader = styled('div')`
   position: relative;
-  max-width: 800px;
+  max-width: 600px;
   margin: 20px auto;
-  padding: 16px 12px 16px 12px;
+  padding: 12px;
   border: 2px solid #000;
   background-color: #eee;
   text-align: center;
 `
 
-const SubMenuWrapper = styled('div')`
-  position: absolute;
-  bottom: 0;
-  right: 0;
-`
-
 const CurrentTeam = styled('h2')`
-  margin-top: 12px;
-  font-size: 24px;
+  margin: 6px 0 10px 0;
+  font-size: 20px;
   font-weight: 400;
 `
 
-interface PlayerProps extends RouteComponentProps<any> {
-
-}
+interface PlayerProps extends RouteComponentProps<any> {}
 
 const containerWrap = (content: any) =>
   <PageContainer><ContentContainer>{content}</ContentContainer></PageContainer>
@@ -77,10 +69,8 @@ const Player = (props: PlayerProps) => {
     <div>
       <TopHeader>
         <PageTitle>{playerName}</PageTitle>
-        <CurrentTeam><Link to={teamRoute}>{playerCurrentTeam.name}</Link></CurrentTeam>
-        <SubMenuWrapper>
-          <TogglingSubMenu {...subMenuProps} />
-        </SubMenuWrapper>
+        <CurrentTeam><Link className={hoverLinkClass} to={teamRoute}>{playerCurrentTeam.name}</Link></CurrentTeam>
+        <TogglingSubMenu {...subMenuProps} />
       </TopHeader>
       {seasonShooting && <PlayerSeason player={player} />}
     </div>

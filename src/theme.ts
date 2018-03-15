@@ -1,9 +1,9 @@
 
 export const shootingColorMap = {
-  effectiveFieldGoalPercentage: '#03A9F4',
-  trueShootingPercentage: '#f00',
+  effectiveFieldGoalPercentage: '#B388FF',
+  trueShootingPercentage: '#03A9F4',
   fieldGoalPercentage: '#00796B',
-  twoPointPercentage: '#7E57C2',
+  twoPointPercentage: '#f00',
   threePointPercentage: '#00f',
   freeThrowPercentage: '#4CAF50',
   rimPercentage: '#E65100',

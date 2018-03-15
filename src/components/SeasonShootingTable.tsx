@@ -15,7 +15,7 @@ import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
-  padding-bottom: 15px;
+  padding: 20px 20px 15px 20px;
   min-height: 180px;
 `
 

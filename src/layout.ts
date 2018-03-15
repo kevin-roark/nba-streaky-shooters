@@ -30,8 +30,8 @@ export const secondaryBorderStyles = css`
 
 export const secondaryContainerStyles = css`
   ${secondaryBorderStyles};
-  padding: 20px;
   background: #fafafa;
+  margin-bottom: 20px;
 `
 
 export const PageTitle = styled('h1')`
@@ -47,4 +47,25 @@ export const DescriptionExplanation = styled('p')`
   font-style: italic;
   font-size: 12px;
   line-height: 14px;
+`
+
+export const hoverLinkClass = css`
+  border-bottom: none;
+
+  &:hover {
+    border-bottom: 2px solid #000;
+  }
+`
+
+export const buttonLinkClass = css`
+  display: block;
+  padding: 8px;
+  margin-left: 15px;
+  border: 1px solid #000;
+  background-color: #fff;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #eee;
+  }
 `

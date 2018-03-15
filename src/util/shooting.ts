@@ -3,8 +3,8 @@ import { ShootingStat, EnhancedShootingStats } from 'nba-netdata/dist/calc'
 export interface ShootingColumn { header: string, key: ShootingStat, title: string }
 
 const shootingColumnKeys: ShootingStat[] = [
-  'effectiveFieldGoalPercentage',
   'trueShootingPercentage',
+  'effectiveFieldGoalPercentage',
   'fieldGoalPercentage',
   'twoPointPercentage',
   'threePointPercentage',

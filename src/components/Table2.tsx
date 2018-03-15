@@ -173,7 +173,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
   }
 
   onCellMouseLeave = () => {
-    // this.setState({ hoverCell: null })
+    this.setState({ hoverCell: null })
   }
 
   renderCellTooltip(rowId: string, col: number, data?: T) {
@@ -221,7 +221,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
     const styleClass = cx(styles)
 
     return (
-      <TableContainer className={styleClass}>
+      <TableContainer className={styleClass} onMouseLeave={this.onCellMouseLeave}>
         <TableHeader className={styleClass}>
           {columns.map((c, colIdx) => {
             return (

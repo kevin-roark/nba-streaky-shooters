@@ -7,10 +7,10 @@ export interface ShootingFilterDataProps {
 
 export class ShootingFilterData {
     @observable shootingStatsEnabled = {
-      effectiveFieldGoalPercentage: false,
-      trueShootingPercentage: true,
+      effectiveFieldGoalPercentage: true,
+      trueShootingPercentage: false,
       fieldGoalPercentage: false,
-      twoPointPercentage: false,
+      twoPointPercentage: true,
       threePointPercentage: true,
       freeThrowPercentage: false,
       rimPercentage: false,
