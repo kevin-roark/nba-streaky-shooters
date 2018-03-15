@@ -49,7 +49,7 @@ const SecondRowSidebar = styled('div')`
   min-width: 190px;
 `
 
-const PlayerSeasonData = observer(({ data }: PlayerSeasonDataProps) => {
+const PlayerSeasonContent = observer(({ data }: PlayerSeasonDataProps) => {
   return (
     <Container>
       <DataStatus data={data.scores} loading={data.loading} loadError={data.loadError} />
@@ -95,7 +95,7 @@ class PlayerSeason extends React.Component<PlayerSeasonProps & PlayerSeasonDataP
   }
 
   render() {
-    return <PlayerSeasonData data={this.props.data} />
+    return <PlayerSeasonContent data={this.props.data} />
   }
 }
 

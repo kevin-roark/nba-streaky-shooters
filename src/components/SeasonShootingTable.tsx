@@ -9,7 +9,7 @@ import {
 import { secondaryContainerStyles, DescriptionExplanation, serif } from '../layout'
 import { pct } from '../util/format'
 import { shootingColumns, getStatTooltipText } from '../util/shooting'
-import { PlayerSeasonDataProps } from '../models/seasonData'
+import { SeasonDataProps } from '../models/seasonData'
 import { Table, TableColumn } from './Table2'
 import NumberDiff from './NumberDiff'
 
@@ -30,7 +30,7 @@ interface SeasonShootingTableData {
   id: string
 }
 
-interface SeasonShootingTableProps extends PlayerSeasonDataProps {}
+interface SeasonShootingTableProps extends SeasonDataProps {}
 
 interface SeasonShootingTableContentProps extends SeasonShootingTableProps {
   filtered: boolean,

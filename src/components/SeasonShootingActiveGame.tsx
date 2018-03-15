@@ -8,7 +8,7 @@ import {
   mapStatsToString
 } from 'nba-netdata/dist/calc'
 import * as routes from '../routes'
-import { PlayerSeasonDataProps } from '../models/seasonData'
+import { SeasonDataProps } from '../models/seasonData'
 import { DescriptionExplanation, secondaryContainerStyles } from '../layout'
 import { shootingColumns, getStatMadeAttemptedText } from '../util/shooting'
 import { pct } from '../util/format'
@@ -45,7 +45,7 @@ interface SeasonShootingTooltipTableData extends EnhancedShootingBoxScoreStats {
   diff?: boolean
 }
 
-interface SeasonShootingActiveGameProps extends PlayerSeasonDataProps {}
+interface SeasonShootingActiveGameProps extends SeasonDataProps {}
 
 const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps & RouteComponentProps<any>) => {
   const { data, location } = props

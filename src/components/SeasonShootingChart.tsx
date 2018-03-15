@@ -8,7 +8,7 @@ import { GameLog } from 'nba-netdata/dist/types'
 import { ShootingStat, EnhancedShootingBoxScoreStats } from 'nba-netdata/dist/calc'
 import { theme, shootingColorMap } from '../theme'
 import { DescriptionExplanation, secondaryBorderStyles } from '../layout'
-import { PlayerSeasonDataProps } from '../models/seasonData'
+import { SeasonDataProps } from '../models/seasonData'
 import inputDataStore, { InputData } from '../models/inputData'
 
 const Container = styled('div')`
@@ -17,7 +17,7 @@ const Container = styled('div')`
   min-height: 400px;
 `
 
-interface SeasonShootingChartProps extends PlayerSeasonDataProps {
+interface SeasonShootingChartProps extends SeasonDataProps {
   width?: number,
   height?: number
 }
