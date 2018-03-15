@@ -29,6 +29,16 @@
   version "22.2.0"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.2.0.tgz#55ce83139f7ad1b48b414c3927746614c6963c0f"
 
+"@types/lodash.groupby@^4.6.3":
+  version "4.6.3"
+  resolved "https://registry.yarnpkg.com/@types/lodash.groupby/-/lodash.groupby-4.6.3.tgz#2e32fe28b4c717864a372ccc42cafdd9b076e08e"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.104"
+  resolved "http://registry.npmjs.org/@types/lodash/-/lodash-4.14.104.tgz#53ee2357fa2e6e68379341d92eb2ecea4b11bb80"
+
 "@types/node@*", "@types/node@^9.4.6":
   version "9.4.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.4.6.tgz#d8176d864ee48753d053783e4e463aec86b8d82e"
@@ -1155,10 +1165,6 @@ compression@^1.5.2:
     on-headers "~1.0.1"
     safe-buffer "5.1.1"
     vary "~1.1.2"
-
-computed-async-mobx@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/computed-async-mobx/-/computed-async-mobx-4.0.1.tgz#e7a0f6851b33ec697a78cf6587998683556a290c"
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -3896,6 +3902,10 @@ lodash.get@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
 
+lodash.groupby@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.groupby/-/lodash.groupby-4.6.0.tgz#0b08a1dcf68397c397855c3239783832df7403d1"
+
 lodash.indexby@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/lodash.indexby/-/lodash.indexby-3.1.1.tgz#f2caab0ff279837858147730d863cdd80c1c042e"
@@ -4242,10 +4252,6 @@ mobx-react@^5.0.0:
   resolved "https://registry.yarnpkg.com/mobx-react/-/mobx-react-5.0.0.tgz#8d5a33be376fa22b184a6f555d40a6a3a8459a16"
   dependencies:
     hoist-non-react-statics "^2.3.1"
-
-mobx-utils@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/mobx-utils/-/mobx-utils-4.0.0.tgz#dabe25c519ef61fbee9ee42b993580d5707a3789"
 
 mobx@^4.0.0:
   version "4.0.0"

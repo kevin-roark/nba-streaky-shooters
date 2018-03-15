@@ -19,6 +19,10 @@ const LegendItem = styled('li')`
   opacity: 1;
   transition: opacity 0.2s;
 
+  &:last-child {
+    margin-bottom: 0;
+  }
+
   &.disabled {
     opacity: 0.2;
   }

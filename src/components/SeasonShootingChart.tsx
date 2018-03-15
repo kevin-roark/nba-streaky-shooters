@@ -1,21 +1,14 @@
 import * as React from 'react'
 import { observe } from 'mobx'
 import { observer } from 'mobx-react'
-import styled from 'react-emotion'
 import * as moment from 'moment'
 import { VictoryContainer, VictoryBrushContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
 import { GameLog } from 'nba-netdata/dist/types'
 import { ShootingStat, EnhancedShootingBoxScoreStats } from 'nba-netdata/dist/calc'
 import { theme, shootingColorMap } from '../theme'
-import { DescriptionExplanation, secondaryBorderStyles } from '../layout'
+import { DescriptionExplanation, BaseChartContainer } from '../layout'
 import { SeasonDataProps } from '../models/seasonData'
 import inputDataStore, { InputData } from '../models/inputData'
-
-const Container = styled('div')`
-  ${secondaryBorderStyles};
-  background-color: #fff;
-  min-height: 400px;
-`
 
 interface SeasonShootingChartProps extends SeasonDataProps {
   width?: number,
@@ -278,7 +271,7 @@ const SeasonShootingChart = observer((props: SeasonShootingChartProps) => {
     </div>
   )
 
-  return <Container>{content}</Container>
+  return <BaseChartContainer>{content}</BaseChartContainer>
 })
 
 export default SeasonShootingChart

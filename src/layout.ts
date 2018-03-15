@@ -34,6 +34,16 @@ export const secondaryContainerStyles = css`
   margin-bottom: 20px;
 `
 
+export const baseChartContainerStyles = css`
+  ${secondaryBorderStyles};
+  background-color: #fff;
+  min-height: 400px;
+`
+
+export const BaseChartContainer = styled('div')`
+  ${baseChartContainerStyles};
+`
+
 export const PageTitle = styled('h1')`
   margin-top: 0;
   font-size: 40px;

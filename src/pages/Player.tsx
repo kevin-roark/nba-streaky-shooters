@@ -1,11 +1,13 @@
 import * as React from 'react'
+import { observer } from 'mobx-react'
 import { RouteComponentProps, Link } from 'react-router-dom'
 import styled from 'react-emotion'
-import { getPlayerWithSimpleId, getTeamWithAbbreviation } from 'nba-netdata/dist/data'
 import { PageContainer, ContentContainer, PageTitle, hoverLinkClass } from '../layout'
 import * as routes from '../routes'
+import { defaultPlayer, PlayerDataProps } from '../models/playerData'
 import TogglingSubMenu from '../components/TogglingSubMenu'
 import PlayerSeason from '../components/PlayerSeason'
+import PlayerGame from '../components/PlayerGame'
 
 const TopHeader = styled('div')`
   position: relative;
@@ -23,58 +25,84 @@ const CurrentTeam = styled('h2')`
   font-weight: 400;
 `
 
-interface PlayerProps extends RouteComponentProps<any> {}
-
 const containerWrap = (content: any) =>
   <PageContainer><ContentContainer>{content}</ContentContainer></PageContainer>
 
-const PlayerMenuItems = {
-  seasonShooting: 'Season Shooting',
-  gameShooting: 'Game Shooting'
+enum PlayerMenuItem {
+  SeasonShooting = 'Season Shooting',
+  GameShooting = 'Game Shooting'
 }
 
-const Player = (props: PlayerProps) => {
-  const { history, match, location } = props
-  const { playerId, gameId } = match.params as { playerId?: string, gameId?: string }
+const Player = observer((props: PlayerDataProps & { selectMenuItem: (item: PlayerMenuItem) => void }) => {
+  const { player, selectMenuItem } = props
+  const { playerInfo, currentTeam } = player
 
-  const player = playerId ? getPlayerWithSimpleId(playerId) : null
-  const sortedSeasons = player ? Object.keys(player.teams).sort() : []
-  const mostRecentSeason = sortedSeasons.length > 0 ? sortedSeasons[sortedSeasons.length - 1] : null
-  const playerTeams = player && mostRecentSeason ? player.teams[mostRecentSeason] : null
-  if (!playerId || !player || !playerTeams || playerTeams.length === 0) {
+  if (!playerInfo || !currentTeam) {
     return containerWrap(<h1>Player Not Found. Try searching for another.</h1>)
   }
 
-  const seasonShooting = !location.pathname.includes('/game')
-
   const subMenuProps = {
-    menuItems: [PlayerMenuItems.seasonShooting, PlayerMenuItems.gameShooting],
-    currentMenuItem: seasonShooting ? PlayerMenuItems.seasonShooting : PlayerMenuItems.gameShooting,
-    onSelect: (item) => {
-      if (item === PlayerMenuItems.seasonShooting) {
-        history.push(routes.getPlayerRoute(playerId))
-      } else if (item === PlayerMenuItems.gameShooting) {
-        history.push(routes.getPlayerGameRoute(playerId, gameId))
-      }
-    }
+    menuItems: [PlayerMenuItem.SeasonShooting, PlayerMenuItem.GameShooting],
+    currentMenuItem: player.currentMenuItem,
+    onSelect: selectMenuItem
   }
 
-  const playerName = `${player.firstName} ${player.lastName}`
-  const playerCurrentTeam = getTeamWithAbbreviation(playerTeams[playerTeams.length - 1].team)
+  const seasonShooting = player.currentMenuItem === PlayerMenuItem.SeasonShooting
   const teamRoute = seasonShooting
-    ? routes.getTeamRoute(playerCurrentTeam.abbreviation)
-    : routes.getTeamGameRoute(playerCurrentTeam.abbreviation, gameId)
+    ? routes.getTeamRoute(currentTeam.abbreviation)
+    : routes.getTeamGameRoute(currentTeam.abbreviation, player.gameId || undefined)
 
   return containerWrap((
     <div>
       <TopHeader>
-        <PageTitle>{playerName}</PageTitle>
-        <CurrentTeam><Link className={hoverLinkClass} to={teamRoute}>{playerCurrentTeam.name}</Link></CurrentTeam>
+        <PageTitle>{player.playerName}</PageTitle>
+        <CurrentTeam><Link className={hoverLinkClass} to={teamRoute}>{currentTeam.name}</Link></CurrentTeam>
         <TogglingSubMenu {...subMenuProps} />
       </TopHeader>
-      {seasonShooting && <PlayerSeason player={player} />}
+      {seasonShooting && <PlayerSeason data={player.seasonData} />}
+      {!seasonShooting && <PlayerGame data={player.gameData} />}
     </div>
   ))
+})
+
+class PlayerRoute extends React.Component<RouteComponentProps<any>, {}> {
+  componentDidMount() {
+    this.updateModel()
+  }
+
+  componentDidUpdate() {
+    this.updateModel()
+  }
+
+  selectMenuItem = (item: PlayerMenuItem) => {
+    const { history } = this.props
+    if (item === PlayerMenuItem.SeasonShooting) {
+      history.push(routes.getPlayerRoute(defaultPlayer.simplePlayerId))
+    } else if (item === PlayerMenuItem.GameShooting) {
+      history.push(routes.getPlayerGameRoute(defaultPlayer.simplePlayerId, defaultPlayer.gameId || undefined))
+    }
+  }
+
+  updateModel() {
+    const { match, history, location } = this.props
+    const { playerId, gameId } = match.params as { playerId?: string, gameId?: string }
+
+    const currentMenuItem = location.pathname.includes('/game') ? PlayerMenuItem.GameShooting : PlayerMenuItem.SeasonShooting
+    defaultPlayer.setCurrentMenuItem(currentMenuItem)
+
+    if (playerId) {
+      defaultPlayer.setSimpleId(playerId)
+      if (gameId) {
+        defaultPlayer.setGameId(gameId)
+      } else if (currentMenuItem === PlayerMenuItem.GameShooting) {
+        history.replace(routes.getPlayerGameRoute(playerId, defaultPlayer.mostRecentPlayerGameId))
+      }
+    }
+  }
+
+  render() {
+    return <Player player={defaultPlayer} selectMenuItem={this.selectMenuItem} />
+  }
 }
 
-export default Player
+export default PlayerRoute

@@ -3,6 +3,7 @@ import { TeamAbbreviation, PlayerBoxScores, BoxScore } from 'nba-netdata/dist/ty
 import { calcEnhancedGameStats, calcEnhancedTeamGameStats, combineBoxScoreStatsWithShootingData, EnhancedGameStats } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
 import { SeasonFilterData } from './seasonFilterData'
+import { PlayerData } from './playerData'
 
 configure({ enforceActions: true }) // don't allow state modifications outside actions
 
@@ -87,25 +88,23 @@ abstract class SeasonData {
 }
 
 export class PlayerSeasonData extends SeasonData {
-  @observable playerId: string | null = null
+  @observable playerData: PlayerData
   @observable scores: PlayerBoxScores | null = null
 
+  constructor(playerData: PlayerData) {
+    super()
+    this.playerData = playerData
+
+    observe(playerData , 'playerId', () => {
+      this.loadData()
+    })
+  }
+
+  @computed get playerId() {
+    return this.playerData.playerId
+  }
   @computed get enhancedBoxScores() {
     return (this.scores ? this.scores.scores : []).map(calcEnhancedGameStats)
-  }
-
-  @action reset() {
-    super.reset()
-    this.playerId = null
-  }
-
-  @action async setPlayerId(playerId: string) {
-    if (playerId === this.playerId) {
-      return
-    }
-
-    this.playerId = playerId
-    this.loadData()
   }
 
   @action async loadData() {
@@ -123,7 +122,7 @@ export class PlayerSeasonData extends SeasonData {
       this.loading = false
       this.loadError = scores ? null : 'Error loading player box scores...'
       this.scores = scores
-      this.filterData.setActiveGameId(scores ? scores.scores[0].game.GAME_ID : null)
+      this.filterData.setActiveGameId(scores ? scores.scores[scores.scores.length - 1].game.GAME_ID : null)
     })
   }
 }
@@ -165,10 +164,9 @@ export class TeamSeasonData extends SeasonData {
       this.loading = false
       this.loadError = this.scores ? null : 'Error loading team box scores...'
       this.scores = scores
-      this.filterData.setActiveGameId(scores ? scores[0].game.GAME_ID : null)
+      this.filterData.setActiveGameId(scores ? scores[scores.length - 1].game.GAME_ID : null)
     })
   }
 }
 
-export const playerSeasonData = new PlayerSeasonData()
 export const teamSeasonData = new TeamSeasonData()
