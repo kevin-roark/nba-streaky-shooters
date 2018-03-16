@@ -8,17 +8,7 @@ import { secondaryContainerStyles, monospace, DescriptionExplanation } from '../
 import ShootingDataLegend from './ShootingDataLegend'
 import Select from './Select'
 
-const Container = styled('div')`
-  & .DateInput__small {
-    width: 75px;
-  }
-
-  & .DateInput_input__small {
-    font-size: 11px;
-    padding: 6px;
-    font-family: ${monospace};
-  }
-`
+const Container = styled('div')``
 
 const SubContainer = styled('div')`
   ${secondaryContainerStyles};

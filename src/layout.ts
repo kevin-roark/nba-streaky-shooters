@@ -70,12 +70,16 @@ export const hoverLinkClass = css`
 export const buttonLinkClass = css`
   display: block;
   padding: 8px;
-  margin-left: 15px;
   border: 1px solid #000;
   background-color: #fff;
   font-size: 16px;
+  cursor: pointer;
 
   &:hover {
     background-color: #eee;
+  }
+
+  & a {
+    border-bottom: none;
   }
 `

@@ -41,7 +41,7 @@ const GameShotTypeGroupChart = (props: GameShotTypeGroupChartProps) => {
   const barData: { x: string, y: number, label: string, fill: string, fillOpacity: number, stroke: any, strokeWidth: any }[][] = []
   data.forEach(({ made, attempted, type }) => {
     const missed = attempted - made
-    const percent = made / attempted
+    const percent = attempted > 0 ? made / attempted : 0
     const name = getShotTypeTitleAlt(type)
     const fill = shotTypeColorMap[type]
     const stroke = '#000'
@@ -153,7 +153,6 @@ const GameShotDistributionBarChart = observer((props: GameShotDistributionBarCha
   return (
     <Pane
       sideWidth={200}
-      marginBottom={20}
       mainContent={charts}
       sideContent={legend}
     />

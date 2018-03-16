@@ -15,6 +15,7 @@ const PlayerSeason = observer(({ data }: PlayerSeasonDataProps) => {
 
       <Pane
         sideWidth={375}
+        marginBottom={0}
         mainContent={<SeasonShootingTable data={data} />}
         sideContent={<SeasonShootingActiveGame data={data} />}
       />

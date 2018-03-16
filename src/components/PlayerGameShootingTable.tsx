@@ -109,7 +109,7 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
       id: 'points',
       accessor: d => d.data.stats.points,
       dataTooltipRenderer: d => getStatTooltipText(d.data.stats, 'points'),
-      heatProvider: d => getPointsHeat(d.data.stats.points, d.period === 'All' ? 30 : 8)
+      heatProvider: d => getPointsHeat(d.data.stats.points, d.period === 'All' ? 35 : 10)
     },
     ...['hit', 'miss'].map(t => {
       const header = t === 'hit' ? 'FGHS' : 'FGMS'

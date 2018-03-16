@@ -1,9 +1,12 @@
 import { observable, action, computed, configure, runInAction, observe } from 'mobx'
 import * as groupBy from 'lodash.groupby'
+import * as moment from 'moment'
+import { Moment } from 'moment'
 import { TeamAbbreviation, ShotType } from 'nba-netdata/dist/types'
 import { getGameInfo } from 'nba-netdata/dist/data'
 import { PlayByPlayShotData, PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { calcShootingDataFromShots, EnhancedShootingStats, isShotTypeFieldGoal, getParentShotType } from 'nba-netdata/dist/calc'
+import * as routes from '../routes'
 import { webDataManager } from '../data'
 import { PlayerData } from './playerData'
 
@@ -44,9 +47,38 @@ abstract class GameData {
 
   abstract get currentPlaysAndStats(): PlaysAndStats | null
   abstract get team(): TeamAbbreviation | null
+  abstract get possibleGameIds(): string[]
 
   @computed get game() {
     return this.gameId ? getGameInfo(this.gameId) : null
+  }
+  @computed get gameDate() {
+    return this.game ? moment(this.game.date) : null
+  }
+  @computed get possibleGameDates() {
+    const dateMap = new Map<string, string>()
+    this.possibleGameIds.forEach(id => {
+      const info = getGameInfo(id)
+      if (info) {
+        dateMap.set(info.date, id)
+      }
+    })
+    return dateMap
+  }
+  @computed get currentGameIdIndex() {
+    return this.gameId ? this.possibleGameIds.indexOf(this.gameId) : -1
+  }
+  @computed get canIncrementGame() {
+    return this.currentGameIdIndex >= 0 && this.currentGameIdIndex < this.possibleGameIds.length - 1
+  }
+  @computed get nextGameId() {
+    return this.canIncrementGame ? this.possibleGameIds[this.currentGameIdIndex + 1] : null
+  }
+  @computed get canDecrementGame() {
+    return this.currentGameIdIndex > 0
+  }
+  @computed get prevGameId() {
+    return this.canDecrementGame ? this.possibleGameIds[this.currentGameIdIndex - 1] : null
   }
 
   @computed get data() {
@@ -70,7 +102,6 @@ abstract class GameData {
 
     return { allStats, teamPlays, teamStats, playerPlays, playerStats }
   }
-
   @computed get currentPlays() {
     return this.currentPlaysAndStats ? this.currentPlaysAndStats.plays : []
   }
@@ -96,7 +127,7 @@ abstract class GameData {
     }
 
     this.gameId = gameId
-    this.loadData()
+    await this.loadData()
   }
 
   @action async loadData() {
@@ -114,6 +145,8 @@ abstract class GameData {
       this.playByPlayData = playByPlayData
     })
   }
+
+  abstract getGameRoute(gameId: string): string
 
   getPlayerData(playerId: string): PlaysAndStats | null {
     if (!this.data) {
@@ -216,6 +249,9 @@ export class PlayerGameData extends GameData {
   @computed get team() {
     return this.playerData.currentTeam ? this.playerData.currentTeam.abbreviation : null
   }
+  @computed get possibleGameIds() {
+    return this.playerData.playerGameIds
+  }
 
   @computed get currentPlaysAndStats() {
     return this.myPlayerStats
@@ -226,6 +262,10 @@ export class PlayerGameData extends GameData {
   @computed get myPlayerStats() {
     return this.playerId ? this.getPlayerData(this.playerId) : null
   }
+
+  getGameRoute(gameId: string) {
+    return routes.getPlayerGameRoute(this.playerData.simplePlayerId, gameId)
+  }
 }
 
 export class TeamGameData extends GameData {
@@ -233,6 +273,10 @@ export class TeamGameData extends GameData {
 
   @computed get currentPlaysAndStats() {
     return this.myTeamStats
+  }
+
+  @computed get possibleGameIds() {
+    return []
   }
 
   @computed get myTeamStats() {
@@ -250,5 +294,9 @@ export class TeamGameData extends GameData {
     }
 
     this.team = team
+  }
+
+  getGameRoute(gameId: string) {
+    return this.team ? routes.getTeamGameRoute(this.team, gameId) : ''
   }
 }

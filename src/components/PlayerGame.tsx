@@ -4,6 +4,7 @@ import { PlayerGameDataProps } from '../models/gameData'
 import DataStatus from './DataStatus'
 import Pane from './Pane'
 import GameSummary from './GameSummary'
+import GameSelector from './GameSelector'
 import PlayerGameShootingTable from './PlayerGameShootingTable'
 import GameShotTimeMap from './GameShotTimeMap'
 import GamePointsOverTimeChart from './GamePointsOverTimeChart'
@@ -16,27 +17,29 @@ const PlayerGame = observer(({ data }: PlayerGameDataProps) => {
     <div>
       <DataStatus data={data.data} loading={data.loading} loadError={data.loadError} />
 
-      <GameSummary data={data} />
+      <Pane
+        sideWidth={200}
+        centerMainContent={true}
+        mainContent={<GameSummary data={data} />}
+        sideContent={<GameSelector data={data} />}
+      />
 
       <PlayerGameShootingTable data={data} />
 
       <Pane
         sideWidth={200}
-        marginBottom={20}
         mainContent={<GameShotTimeMap data={data} />}
         sideContent={<MadeMissedLegend description="Hover over shot for more info." />}
       />
 
       <Pane
         sideWidth={200}
-        marginBottom={20}
         mainContent={<GamePointsOverTimeChart data={data} />}
         sideContent={null}
       />
 
       <Pane
         sideWidth={200}
-        marginBottom={20}
         mainContent={<GameShotPercentBarChart data={data} />}
         sideContent={<MadeMissedLegend description="Hover over bars for totals." />}
       />

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { withRouter, RouteComponentProps, Link } from 'react-router-dom'
 import styled from 'react-emotion'
+import { css } from 'emotion'
 import { allPlayers, allTeams } from '../routes'
 import { buttonLinkClass } from '../layout'
 import RoutingNBASearch from './RoutingNBASearch'
@@ -28,6 +29,11 @@ const NavContainer = styled('div')`
   align-items: center;
 `
 
+const menuLinkClass = css`
+  ${buttonLinkClass};
+  margin-left: 15px;
+`
+
 const Menu = (props: RouteComponentProps<any>) => {
   const { location: { pathname } } = props
   if (pathname === '/') {
@@ -39,8 +45,8 @@ const Menu = (props: RouteComponentProps<any>) => {
       <AppTitle>NBA Streaky Shooters</AppTitle>
       <NavContainer>
         <RoutingNBASearch />
-        <Link className={buttonLinkClass} to={allPlayers}>View All Players</Link>
-        <Link className={buttonLinkClass} to={allTeams}>View All Teams</Link>
+        <Link className={menuLinkClass} to={allPlayers}>View All Players</Link>
+        <Link className={menuLinkClass} to={allTeams}>View All Teams</Link>
       </NavContainer>
     </Container>
   )
