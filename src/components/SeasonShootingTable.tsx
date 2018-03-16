@@ -85,7 +85,7 @@ const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingT
       <Table rows={rows} columns={columns} />
       <DescriptionExplanation>
         {filtered && 'Colored values are differences between stats over current games and season average. '}
-        Hover over cells for more information.
+        Hover over cells for more info.
         Stat calculations taken from {' '}
         <a href="https://www.basketball-reference.com/about/glossary.html" target="_blank">Basketball Reference</a>.
       </DescriptionExplanation>

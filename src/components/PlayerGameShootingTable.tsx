@@ -63,6 +63,10 @@ const getStreakHeat = (streak: number) => {
   return Math.min(1, 0.5 + (streak - 2) / (maxStreak - 2) * 0.5)
 }
 
+export const getPointsHeat = (points: number, max: number = 10) => {
+  return points / max
+}
+
 const getPeriodTooltipText = (period: string): string => {
   switch (period) {
     case 'Q1':
@@ -100,6 +104,13 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
       width: 60,
       dataTooltipRenderer: d => <TextTooltip>{getPeriodTooltipText(d.period)}</TextTooltip>
     },
+    {
+      header: 'PTS',
+      id: 'points',
+      accessor: d => d.data.stats.points,
+      dataTooltipRenderer: d => getStatTooltipText(d.data.stats, 'points'),
+      heatProvider: d => getPointsHeat(d.data.stats.points, d.period === 'All' ? 30 : 8)
+    },
     ...['hit', 'miss'].map(t => {
       const header = t === 'hit' ? 'FGHS' : 'FGMS'
       return {
@@ -126,7 +137,7 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
     <div>
       <Table rows={rows} columns={columns} sortable={true} highlight={false} />
       <DescriptionExplanation>
-        Hover over cells for more information.
+        Hover over cells for more info.
         Heat colors based on difference from league average in category.
         Stat calculations taken from {' '}
         <a href="https://www.basketball-reference.com/about/glossary.html" target="_blank">Basketball Reference</a>.

@@ -34,6 +34,8 @@ export const gameShootingColumns: ShootingColumn[] = gameShootingColumnKeys.map(
 
 export function getStatAbbr(stat: ShootingStat) {
   switch (stat) {
+    case 'points':
+      return 'PTS'
     case 'effectiveFieldGoalPercentage':
       return 'eFG'
     case 'trueShootingPercentage':
@@ -60,6 +62,8 @@ export function getStatAbbr(stat: ShootingStat) {
 
 export function getStatTitle(stat: ShootingStat) {
   switch (stat) {
+    case 'points':
+      return 'Points'
     case 'effectiveFieldGoalPercentage':
       return 'Effective Field Goal %'
     case 'trueShootingPercentage':
@@ -118,11 +122,11 @@ export function getStatTooltipText(data: EnhancedShootingStats, stat: ShootingSt
   if (stat === 'effectiveFieldGoalPercentage') {
     const twoP = madeAttemptedText(data.twoPointersMade, data.twoPointersAttempted)
     const threeP = madeAttemptedText(data.threePointersMade, data.threePointersAttempted)
-    if (!twoP && !threeP) {
-      return null
-    } else {
-      return `2P: ${twoP || '0/0'}\n3P: ${threeP || '0/0'}`
-    }
+    return (!twoP && !threeP) ? null : `2P: ${twoP || '0/0'}\n3P: ${threeP || '0/0'}`
+  }
+
+  if (stat === 'points') {
+    return `FTM: ${data.freeThrowsMade}\n2PM: ${data.twoPointersMade}\n3PM: ${data.threePointersMade}`
   }
 
   return getStatMadeAttemptedText(data, stat)
