@@ -3,7 +3,7 @@ import * as groupBy from 'lodash.groupby'
 import * as moment from 'moment'
 import { Moment } from 'moment'
 import { TeamAbbreviation, ShotType } from 'nba-netdata/dist/types'
-import { getGameInfo } from 'nba-netdata/dist/data'
+import { getGameInfo, getPlayerWithId } from 'nba-netdata/dist/data'
 import { PlayByPlayShotData, PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { calcShootingDataFromShots, EnhancedShootingStats, isShotTypeFieldGoal, getParentShotType } from 'nba-netdata/dist/calc'
 import * as routes from '../routes'
@@ -288,13 +288,47 @@ export class TeamGameData extends GameData {
   @computed get currentPlaysAndStats() {
     return this.myTeamStats
   }
-
   @computed get possibleGameIds() {
     return this.teamData.teamGameIds
   }
-
   @computed get myTeamStats() {
     return this.team ? this.getTeamData(this.team) : null
+  }
+
+  @computed get playsByPlayer() {
+    const playsByPlayer: {[id: string]: PlayByPlayShotDataPoint[]} = {}
+
+    if (!this.currentPlays) {
+      return playsByPlayer
+    }
+
+    this.currentPlays.forEach(p => {
+      if (!playsByPlayer[p.playerId]) {
+        playsByPlayer[p.playerId] = []
+      }
+
+      playsByPlayer[p.playerId].push(p)
+    })
+
+    return playsByPlayer
+  }
+  @computed get playsAndStatsByPlayer() {
+    const pnsByPlayer: {[id: string]: EnhancedPlaysAndStats} = {}
+    Object.keys(this.playsByPlayer).forEach(id => {
+      const plays = this.playsByPlayer[id]
+      pnsByPlayer[id] = this.enhancePlaysAndStats({ plays, stats: calcShootingDataFromShots(plays) })
+    })
+
+    return pnsByPlayer
+  }
+  @computed get players() {
+    const { playsAndStatsByPlayer } = this
+    return Object.keys(playsAndStatsByPlayer)
+      .map(id => {
+        const { simpleId, firstName, lastName } = getPlayerWithId(id)
+        return { id, simpleId, name: `${firstName} ${lastName}`, data: playsAndStatsByPlayer[id] }
+      })
+      .sort((a, b) => b.data.stats.points - a.data.stats.points)
   }
 
   getGameRoute(gameId: string) {

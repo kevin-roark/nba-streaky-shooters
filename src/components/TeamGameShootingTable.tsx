@@ -9,7 +9,7 @@ import {
 import { secondaryContainerStyles, DescriptionExplanation, serif, sansSerif, ComponentTitle } from '../layout'
 import { pct } from '../util/format'
 import { gameShootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat, getStreakHeat, getPointsHeat } from '../util/shooting'
-import { PlayerGameDataProps, EnhancedPlaysAndStats } from '../models/gameData'
+import { TeamGameDataProps, EnhancedPlaysAndStats } from '../models/gameData'
 import { Table, TableColumn, TextTooltip } from './Table2'
 import NumberDiff from './NumberDiff'
 
@@ -65,18 +65,18 @@ const getPeriodTooltipText = (period: string): string => {
   }
 }
 
-interface PlayerGameShootingTableData {
+interface TeamGameShootingTableData {
   id: string,
   period: string,
   data: EnhancedPlaysAndStats,
 }
 
-interface PlayerGameShootingTableContentProps extends PlayerGameDataProps {
-  rows: PlayerGameShootingTableData[]
+interface TeamGameShootingTableContentProps extends TeamGameDataProps {
+  rows: TeamGameShootingTableData[]
 }
 
-const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTableContentProps) => {
-  const columns: TableColumn<PlayerGameShootingTableData>[] = [
+const TeamGameShootingTableContent = observer(({ rows }: TeamGameShootingTableContentProps) => {
+  const columns: TableColumn<TeamGameShootingTableData>[] = [
     {
       header: '',
       accessor: 'period',
@@ -89,7 +89,7 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
       id: 'points',
       accessor: d => d.data.stats.points,
       dataTooltipRenderer: d => getStatTooltipText(d.data.stats, 'points'),
-      heatProvider: d => getPointsHeat(d.data.stats.points, d.period === 'All' ? 35 : 10)
+      heatProvider: d => getPointsHeat(d.data.stats.points, d.period === 'All' ? 125 : 35)
     },
     ...['hit', 'miss'].map(t => {
       const header = t === 'hit' ? 'FGHS' : 'FGMS'
@@ -101,7 +101,7 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
         dataTooltipRenderer: d => renderStreakDataTooltip(d.period, t, d.data.shotTypeStreaks[t])
       }
     }),
-    ...gameShootingColumns.map(({ header, key, title }): TableColumn<PlayerGameShootingTableData> => {
+    ...gameShootingColumns.map(({ header, key, title }): TableColumn<TeamGameShootingTableData> => {
       const accessor = d => d.data.stats[key]
       return {
         header, id: key, accessor,
@@ -128,7 +128,7 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
   )
 })
 
-export const PlayerGameShootingTable = observer((props: PlayerGameDataProps) => {
+export const TeamGameShootingTable = observer((props: TeamGameDataProps) => {
   const { data } = props
   const { splitCurrentStats } = data
 
@@ -136,10 +136,10 @@ export const PlayerGameShootingTable = observer((props: PlayerGameDataProps) => 
     .filter(r => r.period !== 'OT' || r.data.plays.length > 0)
 
   const content = rows.length === 0 ? null : (
-    <PlayerGameShootingTableContent {...props} rows={rows} />
+    <TeamGameShootingTableContent {...props} rows={rows} />
   )
 
-  return <Container><ComponentTitle>Individual Shooting Stats</ComponentTitle>{content}</Container>
+  return <Container><ComponentTitle>Overall Team Stats</ComponentTitle>{content}</Container>
 })
 
-export default PlayerGameShootingTable
+export default TeamGameShootingTable

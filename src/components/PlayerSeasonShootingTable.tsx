@@ -6,7 +6,7 @@ import {
   getEnhancedShootingBoxScoreStatsStdDev,
   getEnhancedShootingBoxScoreStatsIQR
 } from 'nba-netdata/dist/calc'
-import { secondaryContainerStyles, DescriptionExplanation, serif } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation, serif, ComponentTitle } from '../layout'
 import { pct } from '../util/format'
 import { shootingColumns, getStatTooltipText } from '../util/shooting'
 import { SeasonDataProps } from '../models/seasonData'
@@ -15,7 +15,7 @@ import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
-  padding: 20px 20px 15px 20px;
+  padding: 0 20px 15px 20px;
   min-height: 180px;
 `
 
@@ -108,7 +108,7 @@ export const PlayerSeasonShootingTable = observer((props: PlayerSeasonShootingTa
     <PlayerSeasonShootingTableContent {...props} rows={rows} filtered={filtered} />
   )
 
-  return <Container>{content}</Container>
+  return <Container><ComponentTitle>{data.season} Shooting Stats</ComponentTitle>{content}</Container>
 })
 
 export default PlayerSeasonShootingTable

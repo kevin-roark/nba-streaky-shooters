@@ -28,6 +28,7 @@ const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
   const yTicks = orderedShotTypes.map(getYValue)
   const formatY = i => getShotTypeTitle(orderedShotTypes[i - yPad] as any)
 
+  let maxX = 0
   const dataPoints: { play: PlayByPlayShotDataPoint, x: number, y: number, miss: boolean, label: string }[] = []
   plays.forEach(play => {
     const { secondsIntoGame, shotType, miss, eventDescription, period, periodSecondsRemaining } = play
@@ -42,6 +43,8 @@ const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
     if (isShotTypeFieldGoal(shotType)) {
       dataPoints.push({ play, x, y: getYValue('fieldGoal'), miss, label })
     }
+
+    maxX = Math.max(maxX, x)
   })
 
   const data = dataPoints
@@ -54,7 +57,6 @@ const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
 
   // get ticks for even breaks of quarters / OT periods
   const xTicks = [0, 12 * 60, 24 * 60, 36 * 60, 48 * 60].map(x => x + xPad)
-  const maxX = data.length > 0 ? data[data.length - 1].x : 0
   if (xTicks[xTicks.length - 1] < maxX) {
     const lastX = xTicks[xTicks.length - 1]
     const lastTick = lastX + Math.ceil(((maxX - lastX) / OvertimePeriod)) * OvertimePeriod

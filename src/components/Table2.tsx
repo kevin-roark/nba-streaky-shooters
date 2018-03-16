@@ -51,7 +51,7 @@ export const TableCell = styled('div')`
     }
 
     & .cell-content {
-      padding: 2px 4px;
+      padding: 4px 4px;
     }
   }
 

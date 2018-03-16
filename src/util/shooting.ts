@@ -190,3 +190,19 @@ export function getShotHeat (type: string, percent: number) {
     ? 0.5 * (percent / average)
     : 0.5 + (percent - average) / (1 - average)
 }
+
+export const getStreakHeat = (type: string, streak: number) => {
+  if (streak <= 1) {
+    return type === 'hit' ? 0 : 1
+  } else if (streak === 2) {
+    return 0.5
+  }
+
+  const maxStreak = 8
+  const v = Math.min(1, 0.5 + (streak - 3) / (maxStreak - 3) * 0.5)
+  return type === 'hit' ? v : (0.5 - v)
+}
+
+export const getPointsHeat = (points: number, max: number = 10) => {
+  return points / max
+}

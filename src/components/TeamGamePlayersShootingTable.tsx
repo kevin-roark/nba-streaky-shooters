@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import styled from 'react-emotion'
+import { Link } from 'react-router-dom'
 import {
   EnhancedShootingBoxScoreStats,
   getEnhancedShootingBoxScoreStatsStdDev,
@@ -8,8 +9,9 @@ import {
 } from 'nba-netdata/dist/calc'
 import { secondaryContainerStyles, DescriptionExplanation, serif, sansSerif, ComponentTitle } from '../layout'
 import { pct } from '../util/format'
+import * as routes from '../routes'
 import { gameShootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat, getStreakHeat, getPointsHeat } from '../util/shooting'
-import { PlayerGameDataProps, EnhancedPlaysAndStats } from '../models/gameData'
+import { TeamGameDataProps, EnhancedPlaysAndStats } from '../models/gameData'
 import { Table, TableColumn, TextTooltip } from './Table2'
 import NumberDiff from './NumberDiff'
 
@@ -47,49 +49,32 @@ const renderStreakDataTooltip = (period: string, sType: string, streaks: {[k: st
   )
 }
 
-const getPeriodTooltipText = (period: string): string => {
-  switch (period) {
-    case 'Q1':
-      return 'First Quarter Shots'
-    case 'Q2':
-      return 'Second Quarter Shots'
-    case 'Q3':
-      return 'Third Quarter Shots'
-    case 'Q4':
-      return 'Fourth Quarter Shots'
-    case 'OT':
-      return 'Overtime Shots'
-    case 'All':
-    default:
-      return 'All Shots'
-  }
-}
-
-interface PlayerGameShootingTableData {
+interface TeamGamePlayersShootingTableData {
   id: string,
-  period: string,
+  simpleId: string,
+  name: string,
   data: EnhancedPlaysAndStats,
 }
 
-interface PlayerGameShootingTableContentProps extends PlayerGameDataProps {
-  rows: PlayerGameShootingTableData[]
+interface TeamGamePlayersShootingTableContentProps extends TeamGameDataProps {
+  rows: TeamGamePlayersShootingTableData[]
 }
 
-const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTableContentProps) => {
-  const columns: TableColumn<PlayerGameShootingTableData>[] = [
+const TeamGamePlayersShootingTableContent = observer(({ data, rows }: TeamGamePlayersShootingTableContentProps) => {
+  const columns: TableColumn<TeamGamePlayersShootingTableData>[] = [
     {
       header: '',
-      accessor: 'period',
-      align: 'center',
-      width: 60,
-      dataTooltipRenderer: d => <TextTooltip>{getPeriodTooltipText(d.period)}</TextTooltip>
+      accessor: 'name',
+      align: 'left',
+      width: 175,
+      formatter: (d, v) => <Link to={routes.getPlayerGameRoute(d.simpleId, data.gameId!)}>{v}</Link>
     },
     {
       header: 'PTS',
       id: 'points',
       accessor: d => d.data.stats.points,
       dataTooltipRenderer: d => getStatTooltipText(d.data.stats, 'points'),
-      heatProvider: d => getPointsHeat(d.data.stats.points, d.period === 'All' ? 35 : 10)
+      heatProvider: d => getPointsHeat(d.data.stats.points, 35)
     },
     ...['hit', 'miss'].map(t => {
       const header = t === 'hit' ? 'FGHS' : 'FGMS'
@@ -101,7 +86,7 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
         dataTooltipRenderer: d => renderStreakDataTooltip(d.period, t, d.data.shotTypeStreaks[t])
       }
     }),
-    ...gameShootingColumns.map(({ header, key, title }): TableColumn<PlayerGameShootingTableData> => {
+    ...gameShootingColumns.map(({ header, key, title }): TableColumn<TeamGamePlayersShootingTableData> => {
       const accessor = d => d.data.stats[key]
       return {
         header, id: key, accessor,
@@ -128,18 +113,15 @@ const PlayerGameShootingTableContent = observer(({ rows }: PlayerGameShootingTab
   )
 })
 
-export const PlayerGameShootingTable = observer((props: PlayerGameDataProps) => {
+export const TeamGamePlayersShootingTable = observer((props: TeamGameDataProps) => {
   const { data } = props
-  const { splitCurrentStats } = data
+  const { players } = data
 
-  const rows = (splitCurrentStats || [])
-    .filter(r => r.period !== 'OT' || r.data.plays.length > 0)
-
-  const content = rows.length === 0 ? null : (
-    <PlayerGameShootingTableContent {...props} rows={rows} />
+  const content = players.length === 0 ? null : (
+    <TeamGamePlayersShootingTableContent {...props} rows={players} />
   )
 
-  return <Container><ComponentTitle>Individual Shooting Stats</ComponentTitle>{content}</Container>
+  return <Container><ComponentTitle>Game Shooting Stats By Player</ComponentTitle>{content}</Container>
 })
 
-export default PlayerGameShootingTable
+export default TeamGamePlayersShootingTable

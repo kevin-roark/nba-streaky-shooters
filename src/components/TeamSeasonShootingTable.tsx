@@ -8,7 +8,7 @@ import {
   getEnhancedShootingBoxScoreStatsIQR
 } from 'nba-netdata/dist/calc'
 import * as routes from '../routes'
-import { secondaryContainerStyles, DescriptionExplanation, serif } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation, serif, ComponentTitle } from '../layout'
 import { pct, pctZpad } from '../util/format'
 import { shootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat  } from '../util/shooting'
 import { TeamSeasonDataProps } from '../models/seasonData'
@@ -17,7 +17,7 @@ import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
-  padding: 20px 20px 15px 20px;
+  padding: 0 20px 15px 20px;
   min-height: 180px;
 `
 
@@ -41,7 +41,7 @@ interface TeamSeasonShootingTableContentProps extends TeamSeasonShootingTablePro
 const TeamSeasonShootingTableContent = observer(({ rows, filtered }: TeamSeasonShootingTableContentProps) => {
   const columns: TableColumn<TeamSeasonShootingTableData>[] = [
     {
-      header: '', accessor: 'id', align: 'center', width: 175,
+      header: '', accessor: 'id', align: 'left', width: 175,
       formatter: (d, v) => {
         if (!d.link) {
           return v
@@ -149,7 +149,7 @@ export const TeamSeasonShootingTable = observer((props: TeamSeasonShootingTableP
     <TeamSeasonShootingTableContent {...props} rows={rows} filtered={filtered} />
   )
 
-  return <Container>{content}</Container>
+  return <Container><ComponentTitle>{data.season} Team Shooting Stats</ComponentTitle>{content}</Container>
 })
 
 export default TeamSeasonShootingTable
