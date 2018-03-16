@@ -12,21 +12,34 @@ const Container = styled('div')`
   }
 `
 
-const LegendList = styled('ul')``
+const LegendList = styled('ul')`
+  position: relative;
+
+  &.multiline {
+    display: flex;
+    flex-wrap: wrap;
+  }
+`
 
 const LegendItem = styled('li')`
-  margin-bottom: 0;
   display: flex;
   align-items: center;
   user-select: none;
   opacity: 1;
   transition: opacity 0.2s;
 
-  &:not(:last-child) {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
+  &.small {
+    margin-bottom: 10px;
+  }
 
-    &.small {
-      margin-bottom: 10px;
+  &.multiline {
+    width: 50%;
+  }
+
+  &:not(.multiline) {
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 
@@ -59,16 +72,18 @@ interface LegendItem { label: string, color: string, squareStyle?: React.CSSProp
 interface LegendProps {
   items: LegendItem[],
   small?: boolean,
-  description?: string
+  description?: string,
+  multiline?: boolean
 }
 
-const Legend = ({ items, description, small }: LegendProps) => {
+const Legend = ({ items, description, small, multiline }: LegendProps) => {
   const smallClass = cx({ small })
+  const multilineClass = cx({ multiline })
   return (
     <Container className={smallClass}>
-      <LegendList>
+      <LegendList className={multilineClass}>
         {items.map(({ label, squareStyle, disabled, color, onClick }) => (
-          <LegendItem key={label} onClick={onClick} className={cx({ disabled, small, clickable: !!onClick })}>
+          <LegendItem key={label} onClick={onClick} className={cx({ disabled, small, multiline, clickable: !!onClick })}>
             <LegendSquare style={{ ...squareStyle, backgroundColor: color}} />
             <LegendText className={smallClass}>{label}</LegendText>
           </LegendItem>

@@ -95,6 +95,7 @@ abstract class SeasonData {
   }
 
   abstract async loadData()
+  abstract getGameRoute(gameId: string): string
 }
 
 export class PlayerSeasonData extends SeasonData {
@@ -134,6 +135,10 @@ export class PlayerSeasonData extends SeasonData {
       this.scores = scores
       this.filterData.setActiveGameId(scores ? scores.scores[scores.scores.length - 1].game.GAME_ID : null)
     })
+  }
+
+  getGameRoute(gameId: string) {
+    return this.playerData.getGameRoute(gameId)
   }
 }
 
@@ -222,5 +227,9 @@ export class TeamSeasonData extends SeasonData {
       enhancedStatsByPlayer[id] = { stats: playerStats, shootingData: combineBoxScoreStatsWithShootingData(playerStats) }
     })
     return enhancedStatsByPlayer
+  }
+
+  getGameRoute(gameId: string) {
+    return this.teamData.getGameRoute(gameId)
   }
 }

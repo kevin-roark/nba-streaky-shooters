@@ -1,6 +1,7 @@
 import { observable, action, computed, configure } from 'mobx'
 import { TeamAbbreviation } from 'nba-netdata/dist/types'
 import { getPlayerGameIds, getPlayerWithSimpleId, getTeamGameIds, getTeamWithAbbreviation } from 'nba-netdata/dist/data'
+import * as routes from '../routes'
 import { PageMenuItem } from '../components/PageHeader'
 import { PlayerGameData, TeamGameData } from './gameData'
 import { PlayerSeasonData, TeamSeasonData } from './seasonData'
@@ -32,6 +33,8 @@ abstract class RouteData {
 
     this.gameId = gameId
   }
+
+  abstract getGameRoute(gameId: string): string
 }
 
 export class PlayerData extends RouteData {
@@ -72,6 +75,10 @@ export class PlayerData extends RouteData {
 
     this.simplePlayerId = simplePlayerId
   }
+
+  getGameRoute(gameId: string) {
+    return routes.getPlayerGameRoute(this.simplePlayerId, gameId)
+  }
 }
 
 export class TeamData extends RouteData {
@@ -95,6 +102,10 @@ export class TeamData extends RouteData {
     }
 
     this.team = team
+  }
+
+  getGameRoute(gameId: string) {
+    return this.team ? routes.getTeamGameRoute(this.team, gameId) : ''
   }
 }
 

@@ -29,7 +29,7 @@ export const shotResultColorMap = {
 
 const axisStyle = {
   axis: { stroke: '#000', strokeWidth: 3 },
-  axisLabel: { fontSize: 16, textAnchor: 'middle', padding: 25 },
+  axisLabel: { fontSize: 14, textAnchor: 'middle', padding: 25 },
   tickLabels: { fontSize: 12, padding: 5, fill: '#000' },
 }
 

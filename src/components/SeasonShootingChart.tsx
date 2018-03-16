@@ -1,16 +1,18 @@
 import * as React from 'react'
 import { observe } from 'mobx'
 import { observer } from 'mobx-react'
+import styled from 'react-emotion'
 import * as moment from 'moment'
 import { VictoryContainer, VictoryBrushContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
 import { GameLog } from 'nba-netdata/dist/types'
 import { ShootingStat, EnhancedShootingBoxScoreStats } from 'nba-netdata/dist/calc'
 import { theme, shootingColorMap } from '../theme'
-import { DescriptionExplanation, BaseChartContainer } from '../layout'
+import { DescriptionExplanation, BaseChartContainer, ComponentTitle } from '../layout'
 import { SeasonDataProps } from '../models/seasonData'
 import inputDataStore, { InputData } from '../models/inputData'
 
 interface SeasonShootingChartProps extends SeasonDataProps {
+  title: string,
   width?: number,
   height?: number
 }
@@ -219,17 +221,11 @@ const SeasonShootingBrushChart = observer((props: SeasonShootingBrushChartProps)
         tickValues={brushTickValues}
         tickFormat={d => moment(d).format('MM/YY')}
       />
+
       {series.map(({ key, data: seriesData, color }) => {
         const style = { data: { ...theme.scatter.data, stroke: color }}
         return <VictoryLine key={key} style={style} data={seriesData} />
       })}
-
-      {data.activeGame && (
-        <VictoryLine
-          data={[{ x: data.activeGameTime, y: 0 }, { x: data.activeGameTime, y: 1 }]}
-          style={{ data: { stroke: '#000', strokeWidth: 2 } }}
-        />
-      )}
     </VictoryChart>
   )
 })
@@ -257,6 +253,7 @@ const SeasonShootingChart = observer((props: SeasonShootingChartProps) => {
 
   const content = allStats.length === 0 ? null : (
     <div>
+      <ComponentTitle>{props.title}</ComponentTitle>
       <SeasonShootingChartData
         {...props}
         xValues={filteredXValues}

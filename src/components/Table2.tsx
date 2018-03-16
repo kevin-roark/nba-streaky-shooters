@@ -5,7 +5,7 @@ import * as cx from 'classnames'
 import { TextAlign, monospace, serif } from '../layout'
 import { getHeatColor } from '../util/color'
 
-export type TableStyle = 'default' | 'minimal' | 'small'
+export type TableStyle = 'default' | 'minimal' | 'small' | 'medium'
 
 const TableContainer = styled('div')`
   border: 1px solid #eee;
@@ -14,6 +14,10 @@ const TableContainer = styled('div')`
 
   &.minimal {
     border: none;
+  }
+
+  &.medium {
+    font-size: 13px;
   }
 
   &.small {
@@ -113,7 +117,7 @@ const Tooltip = styled('div')`
   top: 0;
   left: 50%;
   width: 100%;
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, calc(-100% - 10px));
   z-index: 2;
 
   padding: 5px;
@@ -301,7 +305,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
               return (
                 <TableCell
                   key={c.id}
-                  className={cx([styleClass, { [c.align || 'right']: true }])}
+                  className={cx([styleClass, { [c.align || 'center']: true }])}
                   style={style}
                   onMouseEnter={() => this.onCellMouseEnter(d.id, colIdx)}
                   onMouseLeave={() => this.clearHoverCell(d.id, colIdx)}

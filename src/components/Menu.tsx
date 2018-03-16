@@ -32,6 +32,7 @@ const NavContainer = styled('div')`
 const menuLinkClass = css`
   ${buttonLinkClass};
   margin-left: 15px;
+  display: none;
 `
 
 const Menu = (props: RouteComponentProps<any>) => {
@@ -42,7 +43,7 @@ const Menu = (props: RouteComponentProps<any>) => {
 
   return (
     <Container>
-      <AppTitle>Streaky Shooting</AppTitle>
+      <AppTitle>NBA Streaky Shooting</AppTitle>
       <NavContainer>
         <RoutingNBASearch />
         <Link className={menuLinkClass} to={allPlayers}>View All Players</Link>

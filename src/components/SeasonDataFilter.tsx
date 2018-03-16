@@ -8,7 +8,9 @@ import { secondaryContainerStyles, monospace, DescriptionExplanation } from '../
 import ShootingDataLegend from './ShootingDataLegend'
 import Select from './Select'
 
-const Container = styled('div')``
+const Container = styled('div')`
+  width: 190px;
+`
 
 const SubContainer = styled('div')`
   ${secondaryContainerStyles};
@@ -42,7 +44,8 @@ class SeasonDateRangePicker extends React.Component<SeasonDataFilterProps, { foc
       onDatesChange: range => data.setDateRange({ startDate: range.startDate!, endDate: range.endDate! }),
       focusedInput: focusedInput,
       onFocusChange: f => this.setState({ focusedInput: f }),
-      isOutsideRange: day => !data.isWithinBounds(day)
+      isOutsideRange: day => !data.isWithinBounds(day),
+      openDirection: 'up'
     }
 
     return <DateRangePicker {...drpProps} />

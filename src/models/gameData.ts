@@ -264,7 +264,7 @@ export class PlayerGameData extends GameData {
   }
 
   getGameRoute(gameId: string) {
-    return routes.getPlayerGameRoute(this.playerData.simplePlayerId, gameId)
+    return this.playerData.getGameRoute(gameId)
   }
 }
 
@@ -298,6 +298,6 @@ export class TeamGameData extends GameData {
   }
 
   getGameRoute(gameId: string) {
-    return this.team ? routes.getTeamGameRoute(this.team, gameId) : ''
+    return this.teamData.getGameRoute(gameId)
   }
 }

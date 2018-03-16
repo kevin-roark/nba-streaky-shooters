@@ -119,11 +119,11 @@ export function getStatMadeAttemptedText(data: EnhancedShootingStats, stat: Shoo
 }
 
 export function getStatTooltipText(data: EnhancedShootingStats, stat: ShootingStat) {
-  if (stat === 'effectiveFieldGoalPercentage') {
-    const twoP = madeAttemptedText(data.twoPointersMade, data.twoPointersAttempted)
-    const threeP = madeAttemptedText(data.threePointersMade, data.threePointersAttempted)
-    return (!twoP && !threeP) ? null : `2P: ${twoP || '0/0'}\n3P: ${threeP || '0/0'}`
-  }
+  // if (stat === 'effectiveFieldGoalPercentage') {
+  //   const twoP = madeAttemptedText(data.twoPointersMade, data.twoPointersAttempted)
+  //   const threeP = madeAttemptedText(data.threePointersMade, data.threePointersAttempted)
+  //   return (!twoP && !threeP) ? null : `2P: ${twoP || '0/0'}\n3P: ${threeP || '0/0'}`
+  // }
 
   if (stat === 'points') {
     return `FTM: ${data.freeThrowsMade}\n2PM: ${data.twoPointersMade}\n3PM: ${data.threePointersMade}`

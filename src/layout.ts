@@ -11,7 +11,7 @@ export const mobileBreakpoint = 'max-width: 800px'
 export const notMobileBreakpoint = 'min-width: 801px'
 
 export const PageContainer = styled('div')`
-  min-width: 960px;
+  min-width: 1200px;
 `
 
 export const ContentContainer = styled('div')`
@@ -48,6 +48,12 @@ export const PageTitle = styled('h1')`
   margin-top: 0;
   font-size: 40px;
   font-weight: 500;
+`
+
+export const ComponentTitle = styled('h3')`
+  margin: 12px 0;
+  font-size: 18px;
+  text-align: center;
 `
 
 export const DescriptionExplanation = styled('p')`

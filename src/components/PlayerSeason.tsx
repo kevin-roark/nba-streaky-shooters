@@ -22,7 +22,7 @@ const PlayerSeason = observer(({ data }: PlayerSeasonDataProps) => {
 
       <Pane
         sideWidth={190}
-        mainContent={<SeasonShootingChart data={data} />}
+        mainContent={<SeasonShootingChart data={data} title={`${data.season} Shooting Accuracy`} />}
         sideContent={<SeasonDataFilter data={data.filterData} />}
       />
     </div>

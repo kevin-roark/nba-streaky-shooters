@@ -15,6 +15,14 @@ export const zpad = (n: number, len = 2) => {
   return ns
 }
 
+export const pctZpad = (n: number, showP = true) => {
+  let p = pct(n, showP)
+  if (n < 0.1) {
+    p = '0' + p
+  }
+  return p
+}
+
 export const formatSeconds = (seconds: number) => {
   const m = Math.floor(seconds / 60)
   const s = seconds - m * 60

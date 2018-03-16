@@ -9,7 +9,7 @@ import {
 } from 'nba-netdata/dist/calc'
 import * as routes from '../routes'
 import { secondaryContainerStyles, DescriptionExplanation, serif } from '../layout'
-import { pct } from '../util/format'
+import { pct, pctZpad } from '../util/format'
 import { shootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat  } from '../util/shooting'
 import { TeamSeasonDataProps } from '../models/seasonData'
 import { Table, TableColumn, TextTooltip } from './Table2'
@@ -19,6 +19,9 @@ const Container = styled('div')`
   ${secondaryContainerStyles};
   padding: 20px 20px 15px 20px;
   min-height: 180px;
+`
+
+const TooltipWrapper = styled('div')`
 `
 
 interface TeamSeasonShootingTableData {
@@ -47,28 +50,29 @@ const TeamSeasonShootingTableContent = observer(({ rows, filtered }: TeamSeasonS
         return <Link to={d.link}>{v}</Link>
       }
     },
-    { header: 'MIN', id: 'MIN',
-      accessor: d => Math.round(d.filtered.overall.MIN),
+    { header: 'MIN', id: 'MIN', width: 60, align: 'center',
+      accessor: d => d.id === 'Overall' ? '-' : Math.round(d.filtered.overall.MIN),
       headerTooltipRenderer: () => <TextTooltip>Total Minutes Played</TextTooltip>
     },
-    { header: 'GP', id: 'GP',
+    { header: 'GP', id: 'GP', width: 60, align: 'center',
       accessor: d => d.filtered.stats.length,
       headerTooltipRenderer: () => <TextTooltip>Total Games Played</TextTooltip>
     },
     ...shootingColumns.map((({ header, key, title }): TableColumn<TeamSeasonShootingTableData> => {
       const accessor = d => d.filtered.overall[key]
       return {
-        header, id: key, accessor,
+        header, id: key, accessor, align: 'center',
         heatProvider: d => getShotHeat(key, accessor(d)),
         formatter: (d, v: number) => {
           if (isNaN(v)) {
             return '-'
           }
           if (!filtered) {
-            return pct(v)
+            const std = d.filtered.stdDev[key]
+            return std && !isNaN(std) ? `${pctZpad(v)} | ${pctZpad(std)}` : pct(v)
           }
 
-          const av = d.all[key]
+          const av = d.all.overall[key]
           return (
             <span>
               {pct(v)} <span style={{ opacity: 0.5 }}>→</span> <NumberDiff diff={v - av} formatter={pct} />
@@ -76,18 +80,36 @@ const TeamSeasonShootingTableContent = observer(({ rows, filtered }: TeamSeasonS
           )
         },
         headerTooltipRenderer: () => <TextTooltip>{title}</TextTooltip>,
-        dataTooltipRenderer: d => getStatTooltipText(d.filtered.overall, key)
+        dataTooltipRenderer: d => {
+          let std = filtered ? d.filtered.stdDev[key] : null
+          if (isNaN(Number(std))) {
+            std = null
+          }
+
+          const stat = getStatTooltipText(d.filtered.overall, key)
+          if (!stat && !std) {
+            return null
+          }
+
+          return (
+            <TooltipWrapper>
+              <div>{std && `STD: ${pct(std)}`}</div>
+              <div>{stat && `${std ? 'Counts:' : ''} ${stat}`}</div>
+            </TooltipWrapper>
+          )
+        }
       }
     }))
   ]
 
   return (
     <div>
-      <Table rows={rows} columns={columns} sortable={true} />
+      <Table rows={rows} columns={columns} sortable={true} styles={['medium']} />
       <DescriptionExplanation>
-        {filtered && 'Colored values are differences between stats over current games and season overall. '}
+        {filtered && 'Colored % values are differences between stats over currently filtered games and the season overall. '}
+        {!filtered && 'The left half of each cell is the % value. The right half is game-to-game standard deviation. '}
         Hover over cells for more info.
-        Players below 200 minutes filtered out.
+        Players with less than 200 minutes filtered out.
         Stat calculations taken from {' '}
         <a href="https://www.basketball-reference.com/about/glossary.html" target="_blank">Basketball Reference</a>.
       </DescriptionExplanation>

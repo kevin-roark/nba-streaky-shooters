@@ -32,7 +32,7 @@ const ShootingDataLegend = ({ filterData, visibleKeys = defaultVisibleKeys }: Sh
 
   const description = 'Toggle visible stats.'
 
-  return <Legend items={legendItems} description={description} />
+  return <Legend items={legendItems} description={description} multiline={true} />
 }
 
 export default observer(ShootingDataLegend)

@@ -9,21 +9,23 @@ import SeasonShootingChart from './SeasonShootingChart'
 import Pane from './Pane'
 
 const TeamSeason = observer(({ data }: TeamSeasonDataProps) => {
+  const chartSideContent = (
+    <div>
+      <SeasonShootingActiveGame data={data} />
+      <SeasonDataFilter data={data.filterData} />
+    </div>
+  )
+
   return (
     <div>
       <DataStatus data={data.scores} loading={data.loading} loadError={data.loadError} />
 
-      <Pane
-        sideWidth={375}
-        marginBottom={0}
-        mainContent={<TeamSeasonShootingTable data={data} />}
-        sideContent={<SeasonShootingActiveGame data={data} />}
-      />
+      <TeamSeasonShootingTable data={data} />
 
       <Pane
-        sideWidth={190}
-        mainContent={<SeasonShootingChart data={data} />}
-        sideContent={<SeasonDataFilter data={data.filterData} />}
+        sideWidth={300}
+        mainContent={<SeasonShootingChart data={data} title={`${data.season} Team Shooting Accuracy`} />}
+        sideContent={chartSideContent}
       />
     </div>
   )

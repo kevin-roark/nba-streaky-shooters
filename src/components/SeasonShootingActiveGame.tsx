@@ -96,8 +96,7 @@ const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps 
   const secondLink = <Link to={routes.getTeamGameRoute(otherTeam, id)}>{otherTeam}</Link>
   const connector = game.HOME ? 'vs.' : '@'
 
-  const playerId = routes.getPlayerId(location.pathname)
-  const moreDetailLink = playerId && <Link to={routes.getPlayerGameRoute(playerId, id)}>Explore game in detail.</Link>
+  const moreDetailLink = <Link to={data.getGameRoute(id)}>Explore game in detail.</Link>
 
   return (
     <Container>
