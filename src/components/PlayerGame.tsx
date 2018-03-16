@@ -32,11 +32,7 @@ const PlayerGame = observer(({ data }: PlayerGameDataProps) => {
         sideContent={<MadeMissedLegend description="Hover over shot for more info." />}
       />
 
-      <Pane
-        sideWidth={200}
-        mainContent={<GamePointsOverTimeChart data={data} />}
-        sideContent={null}
-      />
+      <GamePointsOverTimeChart data={data} />
 
       <Pane
         sideWidth={200}

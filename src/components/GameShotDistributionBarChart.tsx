@@ -6,16 +6,20 @@ import { ShotType } from 'nba-netdata/dist/types'
 import { EnhancedShootingStats } from 'nba-netdata/dist/calc'
 import { getShotTypeTitleAlt } from '../util/shooting'
 import { GameDataProps } from '../models/gameData'
-import { baseChartContainerStyles, monospace } from '../layout'
+import { baseChartContainerStyles, monospace, ComponentTitle } from '../layout'
 import { theme, shotTypeColorMap } from '../theme'
 import Legend from './Legend'
 import Pane from './Pane'
+import ShotTypeLegend from './ShotTypeLegend'
 
 const missedOpacity = 0.5
 const madeOpacity = 0.9
 
 const Container = styled('div')`
   ${baseChartContainerStyles};
+`
+
+const ChartWrapper = styled('div')`
   display: flex;
   justify-content: center;
 `
@@ -125,28 +129,16 @@ const GameShotDistributionBarChart = observer((props: GameShotDistributionBarCha
     ]
   }
 
-  const legendItems: { label: string, color: string, squareStyle: React.CSSProperties }[] = []
-  const allData = [...twoPointData.data, ...fieldGoalData.data, ...allShotsData.data]
-  allData.forEach(d => {
-    const label = getShotTypeTitleAlt(d.type)
-    if (!legendItems.find(i => i.label === label)) {
-      legendItems.push({ label: label, color: shotTypeColorMap[d.type], squareStyle: { opacity: madeOpacity } })
-    }
-  })
-
-  const legend = (
-    <Legend
-      items={legendItems}
-      small={true}
-      description="Darker / lighter colors are makes / misses of the same type."
-    />
-  )
+  const legend = <ShotTypeLegend description="Darker / lighter colors are makes / misses of the same type." />
 
   const charts = (
     <Container>
-      <GameShotTypeGroupChart {...twoPointData} />
-      <GameShotTypeGroupChart {...fieldGoalData} />
-      <GameShotTypeGroupChart {...allShotsData} />
+      <ComponentTitle>Game Shot Distribution</ComponentTitle>
+      <ChartWrapper>
+        <GameShotTypeGroupChart {...twoPointData} />
+        <GameShotTypeGroupChart {...fieldGoalData} />
+        <GameShotTypeGroupChart {...allShotsData} />
+      </ChartWrapper>
     </Container>
   )
 

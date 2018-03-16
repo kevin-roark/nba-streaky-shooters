@@ -6,7 +6,7 @@ import { PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { allShotTypes, getShotTypeTitle } from '../util/shooting'
 import { formatSeconds } from '../util/format'
 import { GameDataProps } from '../models/gameData'
-import { BaseChartContainer, monospace } from '../layout'
+import { BaseChartContainer, monospace, ComponentTitle } from '../layout'
 import { theme, shotResultColorMap } from '../theme'
 
 const OvertimePeriod = 5 * 60
@@ -96,14 +96,13 @@ const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
 
   const chartProps = {
     width, height, containerComponent,
-    padding: { left: 100, top: 10, bottom: 50, right: 10 },
+    padding: { left: 100, top: 10, bottom: 25, right: 10 },
     domainPadding: { x: 5, y: yPad }
   }
 
   const content = (
     <VictoryChart {...chartProps}>
       <VictoryAxis
-        label="Game Time"
         style={theme.independentAxis.style}
         tickValues={xTicks}
         tickFormat={formatX}
@@ -129,7 +128,12 @@ const GameShotTimeMap = observer((props: GameShotTimeMapProps) => {
     </VictoryChart>
   )
 
-  return <BaseChartContainer>{content}</BaseChartContainer>
+  return (
+    <BaseChartContainer>
+      <ComponentTitle>Shot Selection / Streakiness Through Game</ComponentTitle>
+      {content}
+    </BaseChartContainer>
+  )
 })
 
 export default observer(GameShotTimeMap)

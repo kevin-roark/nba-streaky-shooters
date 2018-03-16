@@ -6,7 +6,7 @@ import { EnhancedShootingStats } from 'nba-netdata/dist/calc'
 import { getShotTypeTitle } from '../util/shooting'
 import { pctWhole } from '../util/format'
 import { GameDataProps } from '../models/gameData'
-import { BaseChartContainer, monospace } from '../layout'
+import { BaseChartContainer, monospace, ComponentTitle } from '../layout'
 import { theme, shotResultColorMap } from '../theme'
 
 interface GameShotPercentBarChartProps extends GameDataProps {
@@ -83,7 +83,12 @@ const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) =
     </VictoryChart>
   )
 
-  return <BaseChartContainer>{content}</BaseChartContainer>
+  return (
+    <BaseChartContainer>
+      <ComponentTitle>Overall Shooting Accuracy</ComponentTitle>
+      {content}
+    </BaseChartContainer>
+  )
 })
 
 export default observer(GameShotPercentBarChart)
