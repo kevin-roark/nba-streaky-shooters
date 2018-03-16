@@ -1,6 +1,7 @@
 import { observable, action, computed, configure, runInAction, observe } from 'mobx'
 import * as groupBy from 'lodash.groupby'
 import { TeamAbbreviation, ShotType } from 'nba-netdata/dist/types'
+import { getGameInfo } from 'nba-netdata/dist/data'
 import { PlayByPlayShotData, PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { calcShootingDataFromShots, EnhancedShootingStats, isShotTypeFieldGoal, getParentShotType } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
@@ -42,6 +43,11 @@ abstract class GameData {
   @observable playByPlayData: PlayByPlayShotData | null = null
 
   abstract get currentPlaysAndStats(): PlaysAndStats | null
+  abstract get team(): TeamAbbreviation | null
+
+  @computed get game() {
+    return this.gameId ? getGameInfo(this.gameId) : null
+  }
 
   @computed get data() {
     if (!this.playByPlayData) {
@@ -205,6 +211,10 @@ export class PlayerGameData extends GameData {
         this.setGameId(gameId)
       }
     })
+  }
+
+  @computed get team() {
+    return this.playerData.currentTeam ? this.playerData.currentTeam.abbreviation : null
   }
 
   @computed get currentPlaysAndStats() {

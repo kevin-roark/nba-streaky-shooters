@@ -3,6 +3,7 @@ import { observer } from 'mobx-react'
 import { PlayerGameDataProps } from '../models/gameData'
 import DataStatus from './DataStatus'
 import Pane from './Pane'
+import GameSummary from './GameSummary'
 import PlayerGameShootingTable from './PlayerGameShootingTable'
 import GameShotTimeMap from './GameShotTimeMap'
 import GamePointsOverTimeChart from './GamePointsOverTimeChart'
@@ -14,6 +15,8 @@ const PlayerGame = observer(({ data }: PlayerGameDataProps) => {
   return (
     <div>
       <DataStatus data={data.data} loading={data.loading} loadError={data.loadError} />
+
+      <GameSummary data={data} />
 
       <PlayerGameShootingTable data={data} />
 

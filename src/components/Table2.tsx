@@ -197,7 +197,14 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
     this.setState({ hoverCell: { rowId, col }})
   }
 
-  clearHoverCell = () => {
+  clearHoverCell = (rowId: string, colIdx: number) => {
+    const { hoverCell } = this.state
+    if (hoverCell && hoverCell.col === colIdx && hoverCell.rowId === rowId) {
+      this.setState({ hoverCell: null })
+    }
+  }
+
+  forceClearHoverCell = () => {
     this.setState({ hoverCell: null })
   }
 
@@ -221,7 +228,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
     return (
       <Tooltip
         className={cx({ horizontal: col === 0 })}
-        onMouseEnter={this.clearHoverCell}
+        onMouseEnter={() => this.clearHoverCell(rowId, col)}
       >
         {value}
       </Tooltip>
@@ -253,7 +260,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
     const styleClass = cx(styles, { highlight })
 
     return (
-      <TableContainer className={styleClass} onMouseLeave={this.clearHoverCell}>
+      <TableContainer className={styleClass} onMouseLeave={this.forceClearHoverCell}>
         <TableHeader className={styleClass}>
           {columns.map((c, colIdx) => {
             const headerCellClass = cx([styleClass, {
@@ -266,7 +273,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
                 className={headerCellClass}
                 onClick={() => this.onCellHeaderClick(c)}
                 onMouseEnter={() => this.onCellMouseEnter('header', colIdx)}
-                onMouseLeave={this.clearHoverCell}
+                onMouseLeave={() => this.clearHoverCell('header', colIdx)}
               >
                 <div className="cell-content">{c.header}</div>
                 {this.renderCellTooltip('header', colIdx)}
@@ -292,6 +299,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
                   className={cx([styleClass, { [c.align || 'right']: true }])}
                   style={style}
                   onMouseEnter={() => this.onCellMouseEnter(d.id, colIdx)}
+                  onMouseLeave={() => this.clearHoverCell(d.id, colIdx)}
                 >
                   <div className="cell-content">{c.formatter(d, value)}</div>
                   {this.renderCellTooltip(d.id, colIdx, d)}
