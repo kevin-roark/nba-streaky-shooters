@@ -38,6 +38,10 @@ export class SeasonFilterData {
     @computed get timeRange() {
       return [this.dateRange.startDate.valueOf(), this.dateRange.endDate.valueOf()]
     }
+    @computed get dirtyDates() {
+      return this.startDate.valueOf() !== this.rangeBounds.startDate.valueOf()
+        && this.endDate.valueOf() !== this.rangeBounds.endDate.valueOf()
+    }
 
     @action reset() {
       this.setSeason('2017-18')
@@ -50,11 +54,17 @@ export class SeasonFilterData {
     }
 
     @action setDateRange(range: MomentDateRange) {
-      this.dateRange = range
+      const startDate = range.startDate.valueOf() < this.rangeBounds.startDate.valueOf() ? this.rangeBounds.startDate : range.startDate
+      const endDate = range.endDate.valueOf() > this.rangeBounds.endDate.valueOf() ? this.rangeBounds.endDate : range.endDate
+      this.dateRange = { startDate, endDate }
     }
 
     @action setDateRangeFromTimes(t1: number, t2: number) {
       this.setDateRange({ startDate: moment(t1), endDate: moment(t2) })
+    }
+
+    @action resetDateRange() {
+      this.setDateRange(this.rangeBounds)
     }
 
     @action setActiveGameId(gameId: string | null) {

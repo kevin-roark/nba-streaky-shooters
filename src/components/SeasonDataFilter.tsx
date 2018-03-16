@@ -4,7 +4,7 @@ import styled from 'react-emotion'
 import { DateRangePicker } from 'react-dates'
 import { Season } from 'nba-netdata/dist/types'
 import { SeasonFilterData } from '../models/seasonFilterData'
-import { secondaryContainerStyles, DescriptionExplanation } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation, buttonLinkClass, monospace } from '../layout'
 import ShootingDataLegend from './ShootingDataLegend'
 import Select from './Select'
 
@@ -19,6 +19,14 @@ const SubContainer = styled('div')`
 
 const SeasonSelectorContainer = styled('div')`
   margin-bottom: 15px;
+`
+
+const ResetButton = styled('div')`
+  ${buttonLinkClass};
+  font-family: ${monospace};
+  font-size: 12px;
+  margin-top: 15px;
+  text-align: center;
 `
 
 interface SeasonDataFilterProps {
@@ -76,6 +84,7 @@ class SeasonSelector extends React.Component<SeasonDataFilterProps, {}> {
 }
 
 const SeasonDataFilter = ({ data }: SeasonDataFilterProps) => {
+  const onResetClick = () => data.resetDateRange()
   return (
     <Container>
       <ShootingDataLegend filterData={data.shootingFilter} />
@@ -83,6 +92,7 @@ const SeasonDataFilter = ({ data }: SeasonDataFilterProps) => {
       <SubContainer>
         <SeasonSelector data={data} />
         <SeasonDateRangePicker data={data} />
+        {data.dirtyDates && <ResetButton onClick={onResetClick}>Reset Dates</ResetButton>}
         <DescriptionExplanation>
           Select season or range of games.
         </DescriptionExplanation>
