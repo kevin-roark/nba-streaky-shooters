@@ -1,23 +1,41 @@
 import { observable, action, computed, configure } from 'mobx'
-import { getPlayerGameIds, getPlayerWithSimpleId, getTeamWithAbbreviation } from 'nba-netdata/dist/data'
-import { PlayerGameData } from './gameData'
-import { PlayerSeasonData } from './seasonData'
+import { TeamAbbreviation } from 'nba-netdata/dist/types'
+import { getPlayerGameIds, getPlayerWithSimpleId, getTeamGameIds, getTeamWithAbbreviation } from 'nba-netdata/dist/data'
+import { PageMenuItem } from '../components/PageHeader'
+import { PlayerGameData, TeamGameData } from './gameData'
+import { PlayerSeasonData, TeamSeasonData } from './seasonData'
 
 configure({ enforceActions: true }) // don't allow state modifications outside actions
-
-export enum PlayerMenuItem {
-  SeasonShooting = 'Season Shooting',
-  GameShooting = 'Game Shooting'
-}
 
 export interface PlayerDataProps {
   player: PlayerData
 }
 
-export class PlayerData {
-  @observable currentMenuItem: PlayerMenuItem = PlayerMenuItem.SeasonShooting
-  @observable simplePlayerId: string = ''
+export interface TeamDataProps {
+  team: TeamData
+}
+
+abstract class RouteData {
+  @observable currentMenuItem: PageMenuItem = PageMenuItem.SeasonShooting
   @observable gameId: string | null = null
+
+  @action setCurrentMenuItem(currentMenuItem: PageMenuItem) {
+    if (currentMenuItem !== this.currentMenuItem) {
+      this.currentMenuItem = currentMenuItem
+    }
+  }
+
+  @action setGameId(gameId: string | null) {
+    if (gameId === this.gameId) {
+      return
+    }
+
+    this.gameId = gameId
+  }
+}
+
+export class PlayerData extends RouteData {
+  @observable simplePlayerId: string = ''
   @observable seasonData = new PlayerSeasonData(this)
   @observable gameData = new PlayerGameData(this)
 
@@ -33,7 +51,7 @@ export class PlayerData {
   @computed get playerGameIds() {
     return this.playerId ? getPlayerGameIds(this.playerId) : []
   }
-  @computed get mostRecentPlayerGameId() {
+  @computed get mostRecentGameId() {
     return this.playerGameIds[this.playerGameIds.length - 1]
   }
   @computed get sortedSeasons() {
@@ -47,12 +65,6 @@ export class PlayerData {
     return playerTeams.length > 0 ? getTeamWithAbbreviation(playerTeams[playerTeams.length - 1].team) : null
   }
 
-  @action setCurrentMenuItem(currentMenuItem: PlayerMenuItem) {
-    if (currentMenuItem !== this.currentMenuItem) {
-      this.currentMenuItem = currentMenuItem
-    }
-  }
-
   @action setSimpleId(simplePlayerId: string) {
     if (simplePlayerId === this.simplePlayerId) {
       return
@@ -60,16 +72,31 @@ export class PlayerData {
 
     this.simplePlayerId = simplePlayerId
   }
+}
 
-  @action setGameId(gameId: string | null) {
-    if (gameId === this.gameId) {
+export class TeamData extends RouteData {
+  @observable team: TeamAbbreviation
+  @observable seasonData = new TeamSeasonData(this)
+  @observable gameData = new TeamGameData(this)
+
+  @computed get teamInfo() {
+    return getTeamWithAbbreviation(this.team)
+  }
+  @computed get teamGameIds() {
+    return getTeamGameIds(this.team)
+  }
+  @computed get mostRecentGameId() {
+    return this.teamGameIds[this.teamGameIds.length - 1]
+  }
+
+  @action setTeam(team: TeamAbbreviation) {
+    if (team === this.team) {
       return
     }
 
-    this.gameId = gameId
+    this.team = team
   }
 }
 
 export const defaultPlayer = new PlayerData()
-
-export default defaultPlayer
+export const defaultTeam = new TeamData()

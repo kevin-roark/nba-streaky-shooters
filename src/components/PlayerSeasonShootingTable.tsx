@@ -24,20 +24,20 @@ const TextTooltip = styled('div')`
   font-family: ${serif};
 `
 
-interface SeasonShootingTableData {
+interface PlayerSeasonShootingTableData {
   all: EnhancedShootingBoxScoreStats,
   filtered: EnhancedShootingBoxScoreStats,
   id: string
 }
 
-interface SeasonShootingTableProps extends SeasonDataProps {}
+interface PlayerSeasonShootingTableProps extends SeasonDataProps {}
 
-interface SeasonShootingTableContentProps extends SeasonShootingTableProps {
+interface PlayerSeasonShootingTableContentProps extends PlayerSeasonShootingTableProps {
   filtered: boolean,
-  rows: SeasonShootingTableData[]
+  rows: PlayerSeasonShootingTableData[]
 }
 
-const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingTableContentProps) => {
+const PlayerSeasonShootingTableContent = observer(({ rows, filtered }: PlayerSeasonShootingTableContentProps) => {
   const getLabelTooltipText = (value: string) => {
     switch (value) {
       case 'STD':
@@ -50,7 +50,7 @@ const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingT
     }
   }
 
-  const lc: TableColumn<SeasonShootingTableData> = {
+  const lc: TableColumn<PlayerSeasonShootingTableData> = {
     header: '',
     accessor: 'id',
     align: 'center',
@@ -58,7 +58,7 @@ const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingT
     dataTooltipRenderer: (d) => <TextTooltip>{getLabelTooltipText(d.id)}</TextTooltip>
   }
 
-  const columns = [lc].concat(shootingColumns.map((({ header, key, title }): TableColumn<SeasonShootingTableData> => {
+  const columns = [lc].concat(shootingColumns.map((({ header, key, title }): TableColumn<PlayerSeasonShootingTableData> => {
     return {
       header,
       id: key,
@@ -93,7 +93,7 @@ const SeasonShootingTableContent = observer(({ rows, filtered }: SeasonShootingT
   )
 })
 
-export const SeasonShootingTable = observer((props: SeasonShootingTableProps) => {
+export const PlayerSeasonShootingTable = observer((props: PlayerSeasonShootingTableProps) => {
   const { data } = props
   const { allStats, filteredStats, filtered, allAverageStats, filteredAverageStats } = data
 
@@ -110,10 +110,10 @@ export const SeasonShootingTable = observer((props: SeasonShootingTableProps) =>
   ]
 
   const content = allStats.length === 0 ? null : (
-    <SeasonShootingTableContent {...props} rows={rows} filtered={filtered} />
+    <PlayerSeasonShootingTableContent {...props} rows={rows} filtered={filtered} />
   )
 
   return <Container>{content}</Container>
 })
 
-export default SeasonShootingTable
+export default PlayerSeasonShootingTable

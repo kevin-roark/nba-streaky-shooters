@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import { PlayerSeasonDataProps } from '../models/seasonData'
 import DataStatus from './DataStatus'
 import SeasonDataFilter from './SeasonDataFilter'
-import SeasonShootingTable from './SeasonShootingTable'
+import PlayerSeasonShootingTable from './PlayerSeasonShootingTable'
 import SeasonShootingActiveGame from './SeasonShootingActiveGame'
 import SeasonShootingChart from './SeasonShootingChart'
 import Pane from './Pane'
@@ -16,7 +16,7 @@ const PlayerSeason = observer(({ data }: PlayerSeasonDataProps) => {
       <Pane
         sideWidth={375}
         marginBottom={0}
-        mainContent={<SeasonShootingTable data={data} />}
+        mainContent={<PlayerSeasonShootingTable data={data} />}
         sideContent={<SeasonShootingActiveGame data={data} />}
       />
 

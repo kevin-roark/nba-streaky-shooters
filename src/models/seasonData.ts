@@ -3,7 +3,7 @@ import { TeamAbbreviation, PlayerBoxScores, BoxScore } from 'nba-netdata/dist/ty
 import { calcEnhancedGameStats, calcEnhancedTeamGameStats, combineBoxScoreStatsWithShootingData, EnhancedGameStats } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
 import { SeasonFilterData } from './seasonFilterData'
-import { PlayerData } from './playerData'
+import { PlayerData, TeamData } from './routeData'
 
 configure({ enforceActions: true }) // don't allow state modifications outside actions
 
@@ -128,25 +128,23 @@ export class PlayerSeasonData extends SeasonData {
 }
 
 export class TeamSeasonData extends SeasonData {
-  @observable team: TeamAbbreviation | null = null
+  @observable teamData: TeamData
   @observable scores: BoxScore[] | null = null
 
+  constructor(teamData: TeamData) {
+    super()
+    this.teamData = teamData
+
+    observe(teamData , 'team', () => {
+      this.loadData()
+    })
+  }
+
+  @computed get team() {
+    return this.teamData.team
+  }
   @computed get enhancedBoxScores() {
     return (this.scores || []).map(calcEnhancedTeamGameStats)
-  }
-
-  @action reset() {
-    super.reset()
-    this.team = null
-  }
-
-  @action async setTeam(team: TeamAbbreviation) {
-    if (team === this.team) {
-      return
-    }
-
-    this.team = team
-    this.loadData()
   }
 
   @action async loadData() {
@@ -168,5 +166,3 @@ export class TeamSeasonData extends SeasonData {
     })
   }
 }
-
-export const teamSeasonData = new TeamSeasonData()

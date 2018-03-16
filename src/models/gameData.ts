@@ -8,7 +8,7 @@ import { PlayByPlayShotData, PlayByPlayShotDataPoint } from 'nba-netdata/dist/pl
 import { calcShootingDataFromShots, EnhancedShootingStats, isShotTypeFieldGoal, getParentShotType } from 'nba-netdata/dist/calc'
 import * as routes from '../routes'
 import { webDataManager } from '../data'
-import { PlayerData } from './playerData'
+import { PlayerData, TeamData } from './routeData'
 
 configure({ enforceActions: true }) // don't allow state modifications outside actions
 
@@ -269,31 +269,32 @@ export class PlayerGameData extends GameData {
 }
 
 export class TeamGameData extends GameData {
-  @observable team: TeamAbbreviation | null = null
+  @observable teamData: TeamData
 
+  constructor(teamData: TeamData) {
+    super()
+    this.teamData = teamData
+    observe(this.teamData, 'gameId', () => {
+      const { gameId } = this.teamData
+      if (gameId) {
+        this.setGameId(gameId)
+      }
+    })
+  }
+
+  @computed get team() {
+    return this.teamData.team
+  }
   @computed get currentPlaysAndStats() {
     return this.myTeamStats
   }
 
   @computed get possibleGameIds() {
-    return []
+    return this.teamData.teamGameIds
   }
 
   @computed get myTeamStats() {
     return this.team ? this.getTeamData(this.team) : null
-  }
-
-  @action reset() {
-    super.resetData()
-    this.team = null
-  }
-
-  @action async setTeam(team: TeamAbbreviation) {
-    if (team === this.team) {
-      return
-    }
-
-    this.team = team
   }
 
   getGameRoute(gameId: string) {

@@ -42,7 +42,7 @@ const Menu = (props: RouteComponentProps<any>) => {
 
   return (
     <Container>
-      <AppTitle>NBA Streaky Shooters</AppTitle>
+      <AppTitle>Streaky Shooting</AppTitle>
       <NavContainer>
         <RoutingNBASearch />
         <Link className={menuLinkClass} to={allPlayers}>View All Players</Link>
