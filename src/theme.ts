@@ -1,14 +1,25 @@
+import { ShotType } from 'nba-netdata/dist/types'
+
+export const shotTypeColorMap = {
+  fieldGoal: '#00796B',
+  [ShotType.GenericTwoPt]: '#f00',
+  [ShotType.ThreePt]: '#00f',
+  [ShotType.FreeThrow]: '#4CAF50',
+  [ShotType.Rim]: '#E65100',
+  [ShotType.ShortMidRange]: '#C2185B',
+  [ShotType.LongMidRange]: '#FFC107'
+}
 
 export const shootingColorMap = {
   effectiveFieldGoalPercentage: '#B388FF',
   trueShootingPercentage: '#03A9F4',
-  fieldGoalPercentage: '#00796B',
-  twoPointPercentage: '#f00',
-  threePointPercentage: '#00f',
-  freeThrowPercentage: '#4CAF50',
-  rimPercentage: '#E65100',
-  shortMidRangePercentage: '#C2185B',
-  longMidRangePercentage: '#FFC107'
+  fieldGoalPercentage: shotTypeColorMap.fieldGoal,
+  twoPointPercentage: shotTypeColorMap.genericTwoPt,
+  threePointPercentage: shotTypeColorMap.three,
+  freeThrowPercentage: shotTypeColorMap.freeThrow,
+  rimPercentage: shotTypeColorMap.rim,
+  shortMidRangePercentage: shotTypeColorMap.shortMidRange,
+  longMidRangePercentage: shotTypeColorMap.longMidRange
 }
 
 export const shotResultColorMap = {

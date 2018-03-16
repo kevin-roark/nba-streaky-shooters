@@ -113,6 +113,8 @@ export const allShotTypes = [
   ShotType.ThreePt, ShotType.FreeThrow
 ]
 
+export const fieldGoalTypes = [ShotType.Rim, ShotType.ShortMidRange, ShotType.LongMidRange, ShotType.ThreePt]
+
 export function getShotTypeTitle(type: ShotType | 'fieldGoal') {
   switch (type) {
     case ShotType.FreeThrow:
@@ -130,5 +132,25 @@ export function getShotTypeTitle(type: ShotType | 'fieldGoal') {
     case FieldGoal:
     default:
       return 'Field Goal'
+  }
+}
+
+export function getShotTypeTitleAlt(type: ShotType | 'fieldGoal') {
+  switch (type) {
+    case ShotType.FreeThrow:
+      return 'Free Throws'
+    case ShotType.LongMidRange:
+      return 'Long Mid Range Shots'
+    case ShotType.Rim:
+      return 'Near Rim Shots'
+    case ShotType.ShortMidRange:
+      return 'Short Mid Range Shots'
+    case ShotType.ThreePt:
+      return 'Three Point Shots'
+    case ShotType.GenericTwoPt:
+      return 'Two Point Shots'
+    case FieldGoal:
+    default:
+      return 'Field Goals'
   }
 }

@@ -5,6 +5,7 @@ import DataStatus from './DataStatus'
 import Pane from './Pane'
 import GameShotTimeMap from './GameShotTimeMap'
 import GameShotPercentBarChart from './GameShotPercentBarChart'
+import GameShotDistributionBarChart from './GameShotDistributionBarChart'
 import MadeMissedLegend from './MadeMissedLegend'
 
 const PlayerGame = observer(({ data }: PlayerGameDataProps) => {
@@ -15,16 +16,19 @@ const PlayerGame = observer(({ data }: PlayerGameDataProps) => {
 
       <Pane
         sideWidth={200}
+        marginBottom={20}
         mainContent={<GameShotTimeMap plays={myPlayerStats ? myPlayerStats.plays : []} />}
         sideContent={<MadeMissedLegend description="Hover over shot for more info." />}
-        marginBottom={20}
       />
 
       <Pane
         sideWidth={200}
+        marginBottom={20}
         mainContent={<GameShotPercentBarChart stats={myPlayerStats ? myPlayerStats.stats : null} />}
-        sideContent={<MadeMissedLegend />}
+        sideContent={<MadeMissedLegend description="Hover over bars for totals." />}
       />
+
+      <GameShotDistributionBarChart stats={myPlayerStats ? myPlayerStats.stats : null} />
     </div>
   )
 })

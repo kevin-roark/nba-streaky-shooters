@@ -16,6 +16,7 @@ interface GameShotPercentBarChartProps {
 
 const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) => {
   const { stats, width = 960, height = 320 } = props
+  const yPad = 0.01
 
   const rawData = !stats ? [] : [
     { x: ShotType.FreeThrow, made: stats.freeThrowsMade, attempted: stats.freeThrowsAttempted },
@@ -27,32 +28,21 @@ const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) =
     { x: 'fieldGoal', made: stats.fieldGoalsMade, attempted: stats.fieldGoalsAttempted }
   ]
 
-  const yPad = 0.01
-
   const data = rawData
     .filter(d => d.attempted > 0)
     .map(({ x, made, attempted }) => {
       const missed = (attempted - made)
-      const total = made + attempted
-      const missedY = yPad + (missed / total)
-      const madeY = missedY + (made / total)
+      const missedY = yPad + (missed / attempted)
       const madelabel = `Made ${made} / ${attempted}`
       const missedlabel = `Missed ${missed} / ${attempted}`
-
+      const strokeWidth = (d, active) => active ? 2 : 0
+      const stroke = '#000'
       return [
-        { x, label: missedlabel, y0: yPad, y: missedY, fill: shotResultColorMap.miss },
-        { x, label: madelabel, y0: missedY, y: madeY, fill: shotResultColorMap.make },
+        { x, label: missedlabel, y0: yPad, y: missedY, fill: shotResultColorMap.miss, strokeWidth, stroke },
+        { x, label: madelabel, y0: missedY, y: 1 + yPad, fill: shotResultColorMap.make, strokeWidth, stroke },
       ]
     })
     .reduce((all, d) => all.concat(d), [])
-
-  // const data = dataPoints
-  //   .map(p => {
-  //     const color = p.miss ? shotResultColorMap.miss : shotResultColorMap.make
-  //     const colorer = (d, active) => active ? '#FDD835' : color
-  //     return { ...p, fill: colorer, stroke: colorer }
-  //   })
-  //   .sort((a, b) => yTicks.indexOf(a.y) - yTicks.indexOf(b.y))
 
   const tooltipComponent = (
     <VictoryTooltip
@@ -75,7 +65,6 @@ const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) =
     <VictoryChart {...chartProps}>
       <VictoryAxis
         style={theme.independentAxis.style}
-        // tickValues={xTicks}
         tickFormat={getShotTypeTitle}
       />
       <VictoryAxis
@@ -97,5 +86,3 @@ const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) =
 })
 
 export default observer(GameShotPercentBarChart)
-
-// TODO: include big percent chart of all possible shots
