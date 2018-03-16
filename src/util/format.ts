@@ -1,11 +1,8 @@
 
 export const pct = (n: number, showP = true) => {
   const p = n * 100
-  if (p === 100) {
-    return p
-  }
-
-  return p.toFixed(1) + (showP ? '%' : '')
+  const s = (p !== 100 && p !== 0) ? p.toFixed(1) : p
+  return s + (showP ? '%' : '')
 }
 
 export const pctWhole = (n: number) => `${Math.round(n * 100)}%`

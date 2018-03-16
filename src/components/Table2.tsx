@@ -3,6 +3,7 @@ import styled from 'react-emotion'
 import { css } from 'emotion'
 import * as cx from 'classnames'
 import { TextAlign, monospace } from '../layout'
+import { getHeatColor } from '../util/color'
 
 export type TableStyle = 'default' | 'minimal' | 'small'
 
@@ -23,6 +24,7 @@ const TableContainer = styled('div')`
 export const TableCell = styled('div')`
   position: relative;
   text-align: right;
+  border: 1px solid transparent;
 
   &:not(:last-child) {
     border-right: 1px solid #ddd;
@@ -51,6 +53,24 @@ export const TableCell = styled('div')`
 
   &.clickable {
     cursor: pointer;
+
+    &:hover {
+      border: 1px solid #000;
+
+      &:not(.sortedBy) {
+        background-color: #ddd;
+      }
+    }
+  }
+
+  &.sortedBy {
+    background-color: #ffb;
+    &.ascending {
+      border-top: 1px solid #000;
+    }
+    &.descending {
+      border-bottom: 1px solid #000;
+    }
   }
 `
 
@@ -58,8 +78,10 @@ const rowHeaderStyles = css`
   display: flex;
   justify-content: stretch;
 
-  &:hover {
-    background-color: #eee;
+  &.highlight {
+    &:hover {
+      background-color: #eee;
+    }
   }
 `
 
@@ -68,6 +90,7 @@ const TableHeader = styled('div')`
 
   background-color: #f0f0f0;
   font-weight: 700;
+  user-select: none;
 
   &.minimal {
     background-color: transparent;
@@ -78,7 +101,7 @@ const TableHeader = styled('div')`
 const TableRow = styled('div')`
   ${rowHeaderStyles};
 
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e0e0e0;
 
   &.minimal {
     border-top: none;
@@ -122,7 +145,8 @@ export interface TableColumn<T> {
   align?: TextAlign,
   width?: number,
   headerTooltipRenderer?: () => React.ReactNode,
-  dataTooltipRenderer?: (data: T) => React.ReactNode
+  dataTooltipRenderer?: (data: T) => React.ReactNode,
+  heatProvider?: (data: T) => number,
 }
 
 interface ProcesssedTableColumn<T> extends TableColumn<T> {
@@ -137,6 +161,7 @@ export interface TableProps<T extends { id: string }> {
   columns: TableColumn<T>[],
   styles?: TableStyle[],
   sortable?: boolean
+  highlight?: boolean
 }
 
 interface TableDataProps<T extends {id: string}> extends TableProps<T> {
@@ -172,7 +197,7 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
     this.setState({ hoverCell: { rowId, col }})
   }
 
-  onCellMouseLeave = () => {
+  clearHoverCell = () => {
     this.setState({ hoverCell: null })
   }
 
@@ -194,44 +219,54 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
     }
 
     return (
-      <Tooltip className={cx({ horizontal: col === 0 })}>{value}</Tooltip>
+      <Tooltip
+        className={cx({ horizontal: col === 0 })}
+        onMouseEnter={this.clearHoverCell}
+      >
+        {value}
+      </Tooltip>
     )
   }
 
   render() {
-    const { rows, columns, styles = [], sortable = false } = this.props
+    const { rows, columns, styles = [], sortable = false, highlight = true } = this.props
     const { sortColumnId, sortAscending } = this.state
 
     const sortedRows = rows.concat([])
     const sortCol = columns.find(c => c.id === sortColumnId)
     if (sortCol) {
       sortedRows.sort((a, b) => {
-        const av = sortCol.accessor(a)
-        const bv = sortCol.accessor(b)
+        let av = sortCol.accessor(a)
+        let bv = sortCol.accessor(b)
         if (typeof av === 'number' && typeof bv === 'number') {
+          av = isNaN(av) ? (sortAscending ? Infinity : -Infinity) : av
+          bv = isNaN(bv) ? (sortAscending ? Infinity : -Infinity) : bv
           return sortAscending ? (av - bv) : (bv - av)
         }
 
-        const avs = av + ''
-        const bvs = bv + ''
-        return sortAscending ? avs.localeCompare(bvs) : bvs.localeCompare(avs)
+        av = av + ''
+        bv = bv + ''
+        return sortAscending ? av.localeCompare(bv) : bv.localeCompare(av)
       })
     }
 
-    const styleClass = cx(styles)
+    const styleClass = cx(styles, { highlight })
 
     return (
-      <TableContainer className={styleClass} onMouseLeave={this.onCellMouseLeave}>
+      <TableContainer className={styleClass} onMouseLeave={this.clearHoverCell}>
         <TableHeader className={styleClass}>
           {columns.map((c, colIdx) => {
+            const headerCellClass = cx([styleClass, {
+              clickable: sortable, center: true, sortedBy: sortCol === c, ascending: sortAscending, descending: !sortAscending
+            }])
             return (
               <TableCell
                 key={c.id}
                 style={c.style}
-                className={cx([styleClass, { clickable: sortable, center: true }])}
+                className={headerCellClass}
                 onClick={() => this.onCellHeaderClick(c)}
                 onMouseEnter={() => this.onCellMouseEnter('header', colIdx)}
-                onMouseLeave={this.onCellMouseLeave}
+                onMouseLeave={this.clearHoverCell}
               >
                 <div className="cell-content">{c.header}</div>
                 {this.renderCellTooltip('header', colIdx)}
@@ -243,11 +278,19 @@ class TableData<T extends { id: string }> extends React.Component<TableDataProps
           <TableRow key={d.id} className={styleClass}>
             {columns.map((c, colIdx) => {
               const value = c.accessor(d)
+              let style = { ...c.style }
+              if (c.heatProvider) {
+                const heat = c.heatProvider(d)
+                if (!isNaN(heat)) {
+                  style.backgroundColor = getHeatColor(heat)
+                }
+              }
+
               return (
                 <TableCell
                   key={c.id}
                   className={cx([styleClass, { [c.align || 'right']: true }])}
-                  style={c.style}
+                  style={style}
                   onMouseEnter={() => this.onCellMouseEnter(d.id, colIdx)}
                 >
                   <div className="cell-content">{c.formatter(d, value)}</div>
@@ -281,7 +324,7 @@ export function Table<T extends { id: string }> (props: TableProps<T>) {
     const accessor: DataAccessor<T> = typeof c.accessor === 'function'
       ? (c.accessor as DataAccessor<T>) : ((d: T) => d[c.accessor as keyof T]) as any
 
-    const style = {
+    const style: React.CSSProperties = {
       width: c.width || `calc((100% - ${reservedWidth}px) / ${fluidColumnsCount})`,
     }
 

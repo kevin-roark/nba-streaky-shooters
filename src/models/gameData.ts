@@ -1,8 +1,8 @@
 import { observable, action, computed, configure, runInAction, observe } from 'mobx'
 import * as groupBy from 'lodash.groupby'
-import { TeamAbbreviation } from 'nba-netdata/dist/types'
+import { TeamAbbreviation, ShotType } from 'nba-netdata/dist/types'
 import { PlayByPlayShotData, PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
-import { calcShootingDataFromShots, EnhancedShootingStats } from 'nba-netdata/dist/calc'
+import { calcShootingDataFromShots, EnhancedShootingStats, isShotTypeFieldGoal, getParentShotType } from 'nba-netdata/dist/calc'
 import { webDataManager } from '../data'
 import { PlayerData } from './playerData'
 
@@ -14,6 +14,13 @@ export interface Plays {
 
 export interface PlaysAndStats extends Plays {
   stats: EnhancedShootingStats
+}
+
+export interface EnhancedPlaysAndStats extends PlaysAndStats {
+  shotTypeStreaks: {
+    hit: {[type: string]: number},
+    miss: {[type: string]: number}
+  }
 }
 
 export interface GameDataProps {
@@ -61,9 +68,14 @@ abstract class GameData {
   @computed get currentPlays() {
     return this.currentPlaysAndStats ? this.currentPlaysAndStats.plays : []
   }
-
   @computed get currentStats() {
     return this.currentPlaysAndStats ? this.currentPlaysAndStats.stats : null
+  }
+  @computed get enhancedCurrentStats() {
+    return this.currentPlaysAndStats ? this.enhancePlaysAndStats(this.currentPlaysAndStats) : null
+  }
+  @computed get splitCurrentStats() {
+    return this.currentPlaysAndStats ? this.splitPlaysAndStats(this.currentPlaysAndStats) : null
   }
 
   @action resetData() {
@@ -115,6 +127,68 @@ abstract class GameData {
     const plays = this.data.teamPlays[team]
     const stats = this.data.teamStats[team]
     return plays && stats ? { plays, stats } : null
+  }
+
+  splitPlaysAndStats(pns: PlaysAndStats) {
+    const playsByPeriod: {[period: string]: PlayByPlayShotDataPoint[] } = {}
+
+    const periods = ['Q1', 'Q2', 'Q3', 'Q4', 'OT']
+    periods.forEach(p => playsByPeriod[p] = [])
+
+    pns.plays.forEach(play => {
+      const key = play.period > 4 ? 'OT' : `Q${play.period}`
+      playsByPeriod[key].push(play)
+    })
+
+    const pnsByPeriod = periods.map(period => {
+      const plays = playsByPeriod[period]
+      const stats = calcShootingDataFromShots(plays)
+      return { period, id: period, data: this.enhancePlaysAndStats({ plays, stats }) }
+    })
+
+    pnsByPeriod.push({ period: 'All', id: 'All', data: this.enhancePlaysAndStats(pns) })
+
+    return pnsByPeriod
+  }
+
+  enhancePlaysAndStats(pns: PlaysAndStats): EnhancedPlaysAndStats {
+    const shotTypeMaxHitStreaks: {[shotType: string]: number} = {}
+    const shotTypeCurHitStreaks: {[shotType: string]: number} = {}
+    const shotTypeMaxMissStreaks: {[shotType: string]: number} = {}
+    const shotTypeCurMissStreaks: {[shotType: string]: number} = {}
+
+    const update = (type: ShotType | 'fieldGoal', miss: boolean) => {
+      // reset the opposite streak
+      const altStreaks = miss ? shotTypeCurHitStreaks : shotTypeCurMissStreaks
+      altStreaks[type] = 0
+
+      // update the current streak
+      const curStreaks = miss ? shotTypeCurMissStreaks : shotTypeCurHitStreaks
+      const cur = (curStreaks[type] || 0) + 1
+      curStreaks[type] = cur
+
+      // update the max streak
+      const maxStreaks = miss ? shotTypeMaxMissStreaks : shotTypeMaxHitStreaks
+      const max = maxStreaks[type] || 0
+      if (cur > max) {
+        maxStreaks[type] = cur
+      }
+    }
+
+    pns.plays.forEach(({ shotType, miss }) => {
+      update(shotType, miss)
+
+      const parentType = getParentShotType(shotType)
+      if (parentType) {
+        update(parentType, miss)
+      }
+
+      if (isShotTypeFieldGoal(shotType)) {
+        update('fieldGoal', miss)
+      }
+    })
+
+    return { ...pns, shotTypeStreaks: { hit: shotTypeMaxHitStreaks, miss: shotTypeMaxMissStreaks } }
   }
 }
 

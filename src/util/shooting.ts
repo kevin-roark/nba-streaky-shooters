@@ -1,4 +1,4 @@
-import { ShootingStat, EnhancedShootingStats } from 'nba-netdata/dist/calc'
+import { ShootingStat, EnhancedShootingStats, shotTypeToShootingStat, getShotPercentAverage } from 'nba-netdata/dist/calc'
 import { ShotType, FieldGoal } from 'nba-netdata/dist/types'
 
 export interface ShootingColumn { header: string, key: ShootingStat, title: string }
@@ -13,6 +13,22 @@ const shootingColumnKeys: ShootingStat[] = [
 ]
 
 export const shootingColumns: ShootingColumn[] = shootingColumnKeys.map(key => ({
+  key, header: getStatAbbr(key), title: getStatTitle(key)
+}))
+
+const gameShootingColumnKeys: ShootingStat[] = [
+  'trueShootingPercentage',
+  'effectiveFieldGoalPercentage',
+  'fieldGoalPercentage',
+  'twoPointPercentage',
+  'rimPercentage',
+  'shortMidRangePercentage',
+  'longMidRangePercentage',
+  'threePointPercentage',
+  'freeThrowPercentage'
+]
+
+export const gameShootingColumns: ShootingColumn[] = gameShootingColumnKeys.map(key => ({
   key, header: getStatAbbr(key), title: getStatTitle(key)
 }))
 
@@ -57,11 +73,11 @@ export function getStatTitle(stat: ShootingStat) {
     case 'freeThrowPercentage':
       return 'Free Throw %'
     case 'rimPercentage':
-      return 'Shots at rim %'
+      return 'Shots at Rim %'
     case 'shortMidRangePercentage':
-      return 'Short mid range %'
+      return 'Short Mid Range %'
     case 'longMidRangePercentage':
-      return 'Long mid range %'
+      return 'Long Mid Range %'
 
     default:
       return 'Unknown'
@@ -69,7 +85,7 @@ export function getStatTitle(stat: ShootingStat) {
 }
 
 export function madeAttemptedText(made: number, attempted: number) {
-  return `${Number(made)} / ${Number(attempted)}`
+  return attempted > 0 ? `${Number(made)}/${Number(attempted)}` : null
 }
 
 export function getStatMadeAttemptedText(data: EnhancedShootingStats, stat: ShootingStat) {
@@ -102,7 +118,11 @@ export function getStatTooltipText(data: EnhancedShootingStats, stat: ShootingSt
   if (stat === 'effectiveFieldGoalPercentage') {
     const twoP = madeAttemptedText(data.twoPointersMade, data.twoPointersAttempted)
     const threeP = madeAttemptedText(data.threePointersMade, data.threePointersAttempted)
-    return `2P: ${twoP}\n3P: ${threeP}`
+    if (!twoP && !threeP) {
+      return null
+    } else {
+      return `2P: ${twoP || '0/0'}\n3P: ${threeP || '0/0'}`
+    }
   }
 
   return getStatMadeAttemptedText(data, stat)
@@ -135,6 +155,10 @@ export function getShotTypeTitle(type: ShotType | 'fieldGoal') {
   }
 }
 
+export function getShotTypeAbbr(type: ShotType | 'fieldGoal') {
+  return getStatAbbr(shotTypeToShootingStat(type))
+}
+
 export function getShotTypeTitleAlt(type: ShotType | 'fieldGoal') {
   switch (type) {
     case ShotType.FreeThrow:
@@ -142,7 +166,7 @@ export function getShotTypeTitleAlt(type: ShotType | 'fieldGoal') {
     case ShotType.LongMidRange:
       return 'Long Mid Range Shots'
     case ShotType.Rim:
-      return 'Near Rim Shots'
+      return 'Shots at Rim'
     case ShotType.ShortMidRange:
       return 'Short Mid Range Shots'
     case ShotType.ThreePt:
@@ -153,4 +177,12 @@ export function getShotTypeTitleAlt(type: ShotType | 'fieldGoal') {
     default:
       return 'Field Goals'
   }
+}
+
+export function getShotHeat (type: string, percent: number) {
+  const average = getShotPercentAverage(type)
+
+  return percent < average
+    ? 0.5 * (percent / average)
+    : 0.5 + (percent - average) / (1 - average)
 }
