@@ -34,6 +34,8 @@ abstract class GameData {
   @observable gameId: string | null = null
   @observable playByPlayData: PlayByPlayShotData | null = null
 
+  abstract get currentPlaysAndStats(): PlaysAndStats | null
+
   @computed get data() {
     if (!this.playByPlayData) {
       return null
@@ -54,6 +56,14 @@ abstract class GameData {
     })
 
     return { allStats, teamPlays, teamStats, playerPlays, playerStats }
+  }
+
+  @computed get currentPlays() {
+    return this.currentPlaysAndStats ? this.currentPlaysAndStats.plays : []
+  }
+
+  @computed get currentStats() {
+    return this.currentPlaysAndStats ? this.currentPlaysAndStats.stats : null
   }
 
   @action resetData() {
@@ -123,6 +133,9 @@ export class PlayerGameData extends GameData {
     })
   }
 
+  @computed get currentPlaysAndStats() {
+    return this.myPlayerStats
+  }
   @computed get playerId() {
     return this.playerData.playerId
   }
@@ -133,6 +146,10 @@ export class PlayerGameData extends GameData {
 
 export class TeamGameData extends GameData {
   @observable team: TeamAbbreviation | null = null
+
+  @computed get currentPlaysAndStats() {
+    return this.myTeamStats
+  }
 
   @computed get myTeamStats() {
     return this.team ? this.getTeamData(this.team) : null

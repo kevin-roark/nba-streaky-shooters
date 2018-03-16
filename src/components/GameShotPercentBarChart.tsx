@@ -5,17 +5,18 @@ import { ShotType } from 'nba-netdata/dist/types'
 import { EnhancedShootingStats } from 'nba-netdata/dist/calc'
 import { getShotTypeTitle } from '../util/shooting'
 import { pctWhole } from '../util/format'
+import { GameDataProps } from '../models/gameData'
 import { BaseChartContainer, monospace } from '../layout'
 import { theme, shotResultColorMap } from '../theme'
 
-interface GameShotPercentBarChartProps {
-  stats: EnhancedShootingStats | null,
+interface GameShotPercentBarChartProps extends GameDataProps {
   width?: number,
   height?: number
 }
 
 const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) => {
-  const { stats, width = 960, height = 320 } = props
+  const { width = 960, height = 320 } = props
+  const stats = props.data.currentStats
   const yPad = 0.01
 
   const rawData = !stats ? [] : [

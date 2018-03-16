@@ -5,6 +5,7 @@ import { VictoryContainer, VictoryChart, VictoryAxis, VictoryBar, VictoryTooltip
 import { ShotType } from 'nba-netdata/dist/types'
 import { EnhancedShootingStats } from 'nba-netdata/dist/calc'
 import { getShotTypeTitleAlt } from '../util/shooting'
+import { GameDataProps } from '../models/gameData'
 import { baseChartContainerStyles, monospace } from '../layout'
 import { theme, shotTypeColorMap } from '../theme'
 import Legend from './Legend'
@@ -25,9 +26,7 @@ const ChartContainer = styled('div')`
   }
 `
 
-interface GameShotDistributionBarChartProps {
-  stats: EnhancedShootingStats | null
-}
+interface GameShotDistributionBarChartProps extends GameDataProps {}
 
 interface GameShotTypeGroupChartProps {
   width?: number,
@@ -99,7 +98,7 @@ const GameShotTypeGroupChart = (props: GameShotTypeGroupChartProps) => {
 }
 
 const GameShotDistributionBarChart = observer((props: GameShotDistributionBarChartProps) => {
-  const { stats } = props
+  const stats = props.data.currentStats
 
   const twoPointData = {
     title: 'Two Pointer Distribution',
