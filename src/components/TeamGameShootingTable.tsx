@@ -1,17 +1,11 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import styled from 'react-emotion'
-import {
-  EnhancedShootingBoxScoreStats,
-  getEnhancedShootingBoxScoreStatsStdDev,
-  getEnhancedShootingBoxScoreStatsIQR
-} from 'nba-netdata/dist/calc'
-import { secondaryContainerStyles, DescriptionExplanation, serif, sansSerif, ComponentTitle } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation, sansSerif, ComponentTitle } from '../layout'
 import { pct } from '../util/format'
 import { gameShootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat, getStreakHeat, getPointsHeat } from '../util/shooting'
 import { TeamGameDataProps, EnhancedPlaysAndStats } from '../models/gameData'
 import { Table, TableColumn, TextTooltip } from './Table2'
-import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};

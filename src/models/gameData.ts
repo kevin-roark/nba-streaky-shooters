@@ -1,12 +1,10 @@
 import { observable, action, computed, configure, runInAction, observe } from 'mobx'
 import * as groupBy from 'lodash.groupby'
 import * as moment from 'moment'
-import { Moment } from 'moment'
 import { TeamAbbreviation, ShotType } from 'nba-netdata/dist/types'
 import { getGameInfo, getPlayerWithId } from 'nba-netdata/dist/data'
 import { PlayByPlayShotData, PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { calcShootingDataFromShots, EnhancedShootingStats, isShotTypeFieldGoal, getParentShotType } from 'nba-netdata/dist/calc'
-import * as routes from '../routes'
 import { webDataManager } from '../data'
 import { PlayerData, TeamData } from './routeData'
 

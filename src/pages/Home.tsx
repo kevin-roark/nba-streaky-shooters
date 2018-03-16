@@ -1,7 +1,7 @@
 import * as React from 'react'
 import styled from 'react-emotion'
 import RoutingNBASearch from '../components/RoutingNBASearch'
-import { PageContainer, mobileBreakpoint } from '../layout'
+import { PageContainer, mobileBreakpoint, monospace } from '../layout'
 
 const ContentContainer = styled('div')`
   max-width: 1080px;
@@ -18,6 +18,12 @@ const Title = styled('h1')`
   }
 `
 
+const Subtitle = styled('h2')`
+  margin-top: 16px;
+  text-align: center;
+  font-size: 32px;
+`
+
 const Description = styled('p')`
   margin: 40px 0 80px calc((100% - 800px) / 2);
   max-width: 800px;
@@ -31,16 +37,26 @@ const Description = styled('p')`
   }
 `
 
+const Credit = styled('div')`
+  position: fixed;
+  bottom: 5px;
+  right: 5px;
+  font-family: ${monospace};
+  font-size: 14px;
+`
+
 const Home = () => (
   <PageContainer>
     <ContentContainer>
-      <Title>Understanding Shooter Streakiness</Title>
+      <Title>NBA Streaky Shooting</Title>
+      <Subtitle>Visualizing trends in shooting accuracy</Subtitle>
       <Description>
-        This application can be used to analyze variation in shooting accuracy for players and teams,
-        with the aim of understanding how recent shooting performance might affect upcoming games or plays.
+        This application hopes to aid the analysis of shooting consistency over time for players and teams in both a
+        "macro" season sense and "micro" game sense. It is a work in progress and still growing.
       </Description>
       <RoutingNBASearch big={true} />
     </ContentContainer>
+    <Credit>Data last updated: 03/15/18. Made by <a href="mailto:kevin.e.roark@gmail.com">Kevin Roark Jr</a>.</Credit>
   </PageContainer>
 )
 

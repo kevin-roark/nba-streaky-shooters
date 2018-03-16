@@ -48,7 +48,7 @@ interface SeasonShootingTooltipTableData extends EnhancedShootingBoxScoreStats {
 interface SeasonShootingActiveGameProps extends SeasonDataProps {}
 
 const SeasonShootingActiveGame = observer((props: SeasonShootingActiveGameProps & RouteComponentProps<any>) => {
-  const { data, location } = props
+  const { data } = props
   const { activeGame, filteredAverageStats } = data
   if (!activeGame) {
     return null

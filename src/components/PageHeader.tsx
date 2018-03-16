@@ -1,6 +1,5 @@
 import * as React from 'react'
 import styled from 'react-emotion'
-import * as cx from 'classnames'
 import { PageTitle } from '../layout'
 import TogglingSubMenu from './TogglingSubMenu'
 

@@ -2,7 +2,6 @@ import * as React from 'react'
 import { observer } from 'mobx-react'
 import { VictoryContainer, VictoryChart, VictoryAxis, VictoryBar, VictoryTooltip } from 'victory'
 import { ShotType } from 'nba-netdata/dist/types'
-import { EnhancedShootingStats } from 'nba-netdata/dist/calc'
 import { getShotTypeTitle } from '../util/shooting'
 import { pctWhole } from '../util/format'
 import { GameDataProps } from '../models/gameData'
@@ -58,8 +57,8 @@ const GameShotPercentBarChart = observer((props: GameShotPercentBarChartProps) =
 
   const chartProps = {
     width, height, containerComponent,
-    padding: { left: 100, top: 10, bottom: 30, right: 10 },
-    domainPadding: { x: 30, y: 30 }
+    padding: { left: 50, top: 10, bottom: 30, right: 10 },
+    domainPadding: { x: 50, y: 30 }
   }
 
   const content = (

@@ -4,7 +4,7 @@ import styled from 'react-emotion'
 import { DateRangePicker } from 'react-dates'
 import { Season } from 'nba-netdata/dist/types'
 import { SeasonFilterData } from '../models/seasonFilterData'
-import { secondaryContainerStyles, monospace, DescriptionExplanation } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation } from '../layout'
 import ShootingDataLegend from './ShootingDataLegend'
 import Select from './Select'
 

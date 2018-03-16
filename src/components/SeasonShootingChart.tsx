@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { observe } from 'mobx'
 import { observer } from 'mobx-react'
-import styled from 'react-emotion'
 import * as moment from 'moment'
 import { VictoryContainer, VictoryBrushContainer, VictoryChart, VictoryAxis, VictoryGroup, VictoryLine, VictoryScatter } from 'victory'
 import { GameLog } from 'nba-netdata/dist/types'

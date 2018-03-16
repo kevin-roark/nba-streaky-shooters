@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
-import { VictoryContainer, VictoryChart, VictoryAxis, VictoryTooltip, VictoryArea, VictoryScatter, VictoryGroup, VictoryPortal } from 'victory'
+import { VictoryContainer, VictoryChart, VictoryAxis, VictoryTooltip, VictoryArea, VictoryScatter } from 'victory'
 import { ShotType } from 'nba-netdata/dist/types'
-import { getParentShotType, isShotTypeFieldGoal, getShotTypePointValue } from 'nba-netdata/dist/calc'
+import { getParentShotType, isShotTypeFieldGoal } from 'nba-netdata/dist/calc'
 import { PlayByPlayShotDataPoint } from 'nba-netdata/dist/play-by-play'
 import { allShotTypes, getShotTypeTitleAlt } from '../util/shooting'
 import { formatSeconds, pct } from '../util/format'
@@ -37,9 +37,6 @@ const GamePointsOverTimeChart = observer((props: GamePointsOverTimeChartProps) =
   }
   const formatX = formatSeconds
 
-  // we are plotting accuracy
-  const yTicks = [0.25, 0.5, 0.75, 1]
-
   const dataByType: {[type: string]: GamePointsOverTimeDataPoint[]} = {}
   dataByType.fieldGoal = [{ x: 0, y: 0, makes: 0, attempts: 0, label: null, miss: false }]
   allShotTypes.forEach(t => {
@@ -47,7 +44,7 @@ const GamePointsOverTimeChart = observer((props: GamePointsOverTimeChartProps) =
   })
 
   const addPlayWithShotType = (play: PlayByPlayShotDataPoint, shotType: ShotType | 'fieldGoal') => {
-    const { secondsIntoGame: x, miss, eventDescription, period, periodSecondsRemaining } = play
+    const { secondsIntoGame: x, miss, period, periodSecondsRemaining } = play
 
     const shots = dataByType[shotType]
     const lastShot = shots.length === 0 ? null : shots[shots.length - 1]

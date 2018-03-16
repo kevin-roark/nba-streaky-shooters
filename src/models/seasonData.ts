@@ -1,6 +1,6 @@
 import { observable, action, computed, configure, runInAction, observe } from 'mobx'
 import groupBy from 'lodash.groupby'
-import { TeamAbbreviation, PlayerBoxScores, BoxScore } from 'nba-netdata/dist/types'
+import { PlayerBoxScores, BoxScore } from 'nba-netdata/dist/types'
 import { getPlayerWithId } from 'nba-netdata/dist/data'
 import {
   calcEnhancedGameStats,

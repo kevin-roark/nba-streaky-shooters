@@ -5,12 +5,11 @@ import { Link } from 'react-router-dom'
 import {
   EnhancedShootingBoxScoreStats,
   getEnhancedShootingBoxScoreStatsStdDev,
-  getEnhancedShootingBoxScoreStatsIQR
 } from 'nba-netdata/dist/calc'
 import * as routes from '../routes'
-import { secondaryContainerStyles, DescriptionExplanation, serif, ComponentTitle } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation, ComponentTitle } from '../layout'
 import { pct, pctZpad } from '../util/format'
-import { shootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat  } from '../util/shooting'
+import { shootingColumns, getStatTooltipText, getShotHeat  } from '../util/shooting'
 import { TeamSeasonDataProps } from '../models/seasonData'
 import { Table, TableColumn, TextTooltip } from './Table2'
 import NumberDiff from './NumberDiff'

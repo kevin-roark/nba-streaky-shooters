@@ -22,6 +22,10 @@ const AppTitle = styled('h1')`
   margin: 0;
   font-size: 28px;
   font-weight: 400;
+
+  & a {
+    border-bottom: none;
+  }
 `
 
 const NavContainer = styled('div')`
@@ -43,7 +47,7 @@ const Menu = (props: RouteComponentProps<any>) => {
 
   return (
     <Container>
-      <AppTitle>NBA Streaky Shooting</AppTitle>
+      <AppTitle><Link to="/">NBA Streaky Shooting</Link></AppTitle>
       <NavContainer>
         <RoutingNBASearch />
         <Link className={menuLinkClass} to={allPlayers}>View All Players</Link>

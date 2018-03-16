@@ -6,7 +6,7 @@ import {
   getEnhancedShootingBoxScoreStatsStdDev,
   getEnhancedShootingBoxScoreStatsIQR
 } from 'nba-netdata/dist/calc'
-import { secondaryContainerStyles, DescriptionExplanation, serif, ComponentTitle } from '../layout'
+import { secondaryContainerStyles, DescriptionExplanation, ComponentTitle } from '../layout'
 import { pct } from '../util/format'
 import { shootingColumns, getStatTooltipText } from '../util/shooting'
 import { SeasonDataProps } from '../models/seasonData'

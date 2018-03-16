@@ -6,8 +6,7 @@ import { Moment } from 'moment'
 import styled from 'react-emotion'
 import * as cx from 'classnames'
 import { GameDataProps } from '../models/gameData'
-import { monospace, buttonLinkClass, secondaryContainerStyles } from '../layout'
-import { zpad } from '../util/format'
+import { buttonLinkClass, secondaryContainerStyles } from '../layout'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
@@ -71,7 +70,7 @@ class GameDateSelector extends React.Component<GameDataProps & RouteComponentPro
 }
 
 const GameSelector = (props: GameDataProps & RouteComponentProps<any>) => {
-  const { data, history } = props
+  const { data } = props
   const { nextGameId, prevGameId } = data
 
   const prevGameLink = prevGameId ? <Link to={data.getGameRoute(prevGameId)}>Prev Game</Link> : 'Prev Game'
