@@ -10,18 +10,13 @@ import { secondaryContainerStyles, DescriptionExplanation, serif, sansSerif } fr
 import { pct } from '../util/format'
 import { gameShootingColumns, getStatTooltipText, getShotTypeAbbr, getShotHeat } from '../util/shooting'
 import { PlayerGameDataProps, EnhancedPlaysAndStats } from '../models/gameData'
-import { Table, TableColumn } from './Table2'
+import { Table, TableColumn, TextTooltip } from './Table2'
 import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
   padding: 20px 20px 15px 20px;
   min-height: 180px;
-`
-
-const TextTooltip = styled('div')`
-  font-size: 13px;
-  font-family: ${serif};
 `
 
 const StreakTooltipTitle = styled('div')`

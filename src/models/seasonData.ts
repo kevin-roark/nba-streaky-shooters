@@ -1,6 +1,16 @@
 import { observable, action, computed, configure, runInAction, observe } from 'mobx'
+import groupBy from 'lodash.groupby'
 import { TeamAbbreviation, PlayerBoxScores, BoxScore } from 'nba-netdata/dist/types'
-import { calcEnhancedGameStats, calcEnhancedTeamGameStats, combineBoxScoreStatsWithShootingData, EnhancedGameStats } from 'nba-netdata/dist/calc'
+import { getPlayerWithId } from 'nba-netdata/dist/data'
+import {
+  calcEnhancedGameStats,
+  calcEnhancedTeamGameStats,
+  combineBoxScoreStatsWithShootingData,
+  EnhancedGameStats,
+  EnhancedShootingBoxScoreStats,
+  EnhancedShootingPlayerBoxScoreStats
+} from 'nba-netdata/dist/calc'
+import { boxScoreSeasonFilter } from 'nba-netdata/dist/filter'
 import { webDataManager } from '../data'
 import { SeasonFilterData } from './seasonFilterData'
 import { PlayerData, TeamData } from './routeData'
@@ -127,6 +137,9 @@ export class PlayerSeasonData extends SeasonData {
   }
 }
 
+export type StatsByPlayer = {[id: string]: EnhancedShootingPlayerBoxScoreStats[]}
+export interface StatsAndShots { stats: EnhancedShootingPlayerBoxScoreStats[], shootingData: EnhancedShootingBoxScoreStats }
+
 export class TeamSeasonData extends SeasonData {
   @observable teamData: TeamData
   @observable scores: BoxScore[] | null = null
@@ -144,7 +157,43 @@ export class TeamSeasonData extends SeasonData {
     return this.teamData.team
   }
   @computed get enhancedBoxScores() {
+    return this.enhancedTeamStats
+  }
+  @computed get enhancedTeamStats() {
     return (this.scores || []).map(calcEnhancedTeamGameStats)
+  }
+  @computed get filteredTeamScores() {
+    return this.filterData.filterStats(this.enhancedTeamStats)
+  }
+  @computed get statsByPlayer() {
+    const stats = this.enhancedTeamStats
+      .map(t => t.playerStats)
+      .reduce((s, a) => s.concat(a), [])
+
+    return this.enhanceStatsByPlayer(groupBy(stats, s => s.PLAYER_ID))
+  }
+  @computed get players() {
+    const { statsByPlayer } = this
+    return Object.keys(statsByPlayer)
+      .map(id => {
+        const { simpleId } = getPlayerWithId(id)
+        const stats = statsByPlayer[id]
+        return { id, simpleId, name: stats.stats[0].PLAYER_NAME, shootingData: stats.shootingData }
+      })
+      .filter(p => boxScoreSeasonFilter(p.shootingData))
+      .sort((a, b) => b.shootingData.MIN - a.shootingData.MIN)
+  }
+  @computed get filteredStatsByPlayer() {
+    const { statsByPlayer, filtered } = this
+    if (!filtered) {
+      return statsByPlayer
+    }
+
+    const stats = this.filteredTeamScores
+      .map(t => t.playerStats)
+      .reduce((s, a) => s.concat(a), [])
+
+    return this.enhanceStatsByPlayer(groupBy(stats, s => s.PLAYER_ID))
   }
 
   @action async loadData() {
@@ -160,9 +209,18 @@ export class TeamSeasonData extends SeasonData {
     const scores = await webDataManager.loadTeamBoxScores(this.season, this.team)
     runInAction(() => {
       this.loading = false
-      this.loadError = this.scores ? null : 'Error loading team box scores...'
+      this.loadError = scores ? null : 'Error loading team box scores...'
       this.scores = scores
       this.filterData.setActiveGameId(scores ? scores[scores.length - 1].game.GAME_ID : null)
     })
+  }
+
+  enhanceStatsByPlayer(statsByPlayer: StatsByPlayer) {
+    const enhancedStatsByPlayer: {[id: string]: StatsAndShots} = {}
+    Object.keys(statsByPlayer).forEach(id => {
+      const playerStats = statsByPlayer[id]
+      enhancedStatsByPlayer[id] = { stats: playerStats, shootingData: combineBoxScoreStatsWithShootingData(playerStats) }
+    })
+    return enhancedStatsByPlayer
   }
 }

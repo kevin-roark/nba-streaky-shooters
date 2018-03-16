@@ -2,7 +2,7 @@ import * as React from 'react'
 import styled from 'react-emotion'
 import { css } from 'emotion'
 import * as cx from 'classnames'
-import { TextAlign, monospace } from '../layout'
+import { TextAlign, monospace, serif } from '../layout'
 import { getHeatColor } from '../util/color'
 
 export type TableStyle = 'default' | 'minimal' | 'small'
@@ -132,6 +132,11 @@ const Tooltip = styled('div')`
     top: 50%;
     transform: translate(0, -50%);
   }
+`
+
+export const TextTooltip = styled('div')`
+  font-size: 13px;
+  font-family: ${serif};
 `
 
 type DataAccessor<T> = (data: T) => React.ReactText

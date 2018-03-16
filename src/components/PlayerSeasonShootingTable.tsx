@@ -10,18 +10,13 @@ import { secondaryContainerStyles, DescriptionExplanation, serif } from '../layo
 import { pct } from '../util/format'
 import { shootingColumns, getStatTooltipText } from '../util/shooting'
 import { SeasonDataProps } from '../models/seasonData'
-import { Table, TableColumn } from './Table2'
+import { Table, TableColumn, TextTooltip } from './Table2'
 import NumberDiff from './NumberDiff'
 
 const Container = styled('div')`
   ${secondaryContainerStyles};
   padding: 20px 20px 15px 20px;
   min-height: 180px;
-`
-
-const TextTooltip = styled('div')`
-  font-size: 13px;
-  font-family: ${serif};
 `
 
 interface PlayerSeasonShootingTableData {
