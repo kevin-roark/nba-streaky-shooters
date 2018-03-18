@@ -64,7 +64,7 @@ export class SeasonFilterData {
     }
 
     @action resetDateRange() {
-      this.setDateRange(this.rangeBounds)
+      this.setDateRange({ ... this.rangeBounds })
     }
 
     @action setActiveGameId(gameId: string | null) {
