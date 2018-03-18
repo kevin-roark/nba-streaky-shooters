@@ -188,6 +188,7 @@ const SeasonShootingBrushChart = observer((props: SeasonShootingBrushChartProps)
     ...theme.defaultChartProps,
     height: 100,
     padding: { ...theme.defaultChartProps.padding, bottom: 30 },
+    domainPadding: { x: [15, 15] },
     containerComponent: (
       <VictoryBrushContainer
         responsive={true}
