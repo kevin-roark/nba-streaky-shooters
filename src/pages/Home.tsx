@@ -56,7 +56,7 @@ const Home = () => (
       </Description>
       <RoutingNBASearch big={true} />
     </ContentContainer>
-    <Credit>Data last updated: 03/15/18. Made by <a href="mailto:kevin.e.roark@gmail.com">Kevin Roark Jr</a>.</Credit>
+    <Credit>Data last updated: 03/18/18. Made by <a href="mailto:kevin.e.roark@gmail.com">Kevin Roark Jr</a>.</Credit>
   </PageContainer>
 )
 
